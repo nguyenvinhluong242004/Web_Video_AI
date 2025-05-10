@@ -17,7 +17,9 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "fs": "^0.0.1-security",
+    "groq-sdk": "^0.21.0",
     "morgan": "^1.10.0",
+    "openai": "^4.98.0",
     "ws": "^8.18.2"
   },
   "devDependencies": {
