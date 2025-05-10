@@ -18,6 +18,8 @@ export default function Main() {
     const handleSubmit = async () => {
         setLoading(true);
         try {
+            await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/ping`);
+            
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/tts`,
                 {

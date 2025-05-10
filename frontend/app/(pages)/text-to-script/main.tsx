@@ -11,6 +11,8 @@ export default function Main() {
         if (!prompt.trim()) return;
         setLoading(true);
         try {
+            await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/ping`);
+
             const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/script`, {
                 prompt,
             });
