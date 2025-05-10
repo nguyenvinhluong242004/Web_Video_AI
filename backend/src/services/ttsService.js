@@ -1,13 +1,16 @@
-const WebSocket = require('ws');
-const crypto = require('crypto');
-const fs = require('fs');
+import WebSocket from 'ws';
+import crypto from 'crypto';
+import fs from 'fs';
+
+import dotenv from 'dotenv';
+dotenv.config({ path: './src/app/config/.env' });
 
 const API_KEY = process.env.XFYUN_API_KEY;
 const API_SECRET = process.env.XFYUN_API_SECRET;
 const APP_ID = process.env.XFYUN_APP_ID;
 
 // Service xử lý Text-to-Speech
-const textToSpeech = (options) => {
+export const textToSpeech = (options) => {
   return new Promise((resolve, reject) => {
     const { text, vcn = 'xiaoyun', speed = 40, volume = 50, pitch = 60, aue = 'lame', auf = 'audio/L16;rate=16000', bgs = 0, tte = 'utf8' } = options;
 
@@ -73,5 +76,3 @@ const textToSpeech = (options) => {
     });
   });
 };
-
-module.exports = { textToSpeech };

@@ -1,25 +1,51 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+interface MainProps {
+    idx: number;
+    restart: boolean;
+    script: string;
+    scripts: string[];
+    setScripts: React.Dispatch<React.SetStateAction<string[]>>;
+    url: string;
+    setAudioUrlAtIndex: (index: number, url: string) => void; // Hàm để cập nhật URL âm thanh tại index
+}
 
-export default function Main() {
-    const [text, setText] = useState("");
+export default function main({ idx, restart, script, scripts, setScripts, url, setAudioUrlAtIndex }: MainProps) {
+    const [text, setTextInput] = useState(script);
     const [vcn, setVcn] = useState("xiaoyun");
-    const [speed, setSpeed] = useState(40);
+    const [speed, setSpeed] = useState(56);
     const [volume, setVolume] = useState(50);
-    const [pitch, setPitch] = useState(60);
+    const [pitch, setPitch] = useState(57);
     const [aue, setAue] = useState("lame");
     const [auf, setAuf] = useState("audio/L16;rate=16000");
     const [bgs, setBgs] = useState(0);
     const [tte, setTte] = useState("utf8");
     const [loading, setLoading] = useState(false);
-    const [audioUrl, setAudioUrl] = useState<string | null>(null);
+    const [audioUrl, setAudioUrl] = useState<string | null>(url);
+
+    useEffect(() => {
+        setTextInput(script);
+    }, [script]);
+
+    useEffect(() => {
+        if (restart) {
+            handleSubmit();
+        }
+    }, [restart]);
+
+    const setText = (index: number, value: string) => {
+        const newScripts = [...scripts];
+        newScripts[index] = value; // Cập nhật text tại index tương ứng
+        setTextInput(value);
+        setScripts(newScripts);
+    };
 
     const handleSubmit = async () => {
         setLoading(true);
         try {
             await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/ping`);
-            
+
             const response = await axios.post(
                 `${process.env.NEXT_PUBLIC_API_URL}/tts`,
                 {
@@ -41,6 +67,7 @@ export default function Main() {
             const audioBlob = new Blob([response.data], { type: "audio/mpeg" });
             const url = URL.createObjectURL(audioBlob);
             setAudioUrl(url);
+            setAudioUrlAtIndex(idx, url);
         } catch (error) {
             console.error("Error during API call:", error);
         }
@@ -48,23 +75,21 @@ export default function Main() {
     };
 
     return (
-        <div className="min-w-5xl mx-auto mt-10 p-6 rounded-xl shadow-md space-y-6 text-black flex gap-5">
+        <div className="w-[500px] mx-auto rounded-xl text-black flex flex-col gap-4">
             <div className="w-full max-w-xl">
-                <h1 className="text-2xl font-bold text-center text-gray-800">🗣️ Text to Speech</h1>
-
-                <div className="space-y-4">
+                <div className="space-y-4  border-b pb-3">
                     <label className="block">
-                        <span className="font-medium">Text</span>
+                        <span className="font-medium">Text {idx + 1}</span>
                         <textarea
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
+                            value={script}
+                            onChange={(e) => setText(idx, e.target.value)}
                             placeholder="Nhập văn bản"
                             rows={4}
                             className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         />
                     </label>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <label className="block">
                             <span className="font-medium">VCN</span>
                             <select
@@ -148,18 +173,6 @@ export default function Main() {
                         </label>
 
                         <label className="block">
-                            <span className="font-medium">AUF</span>
-                            <select
-                                value={auf}
-                                onChange={(e) => setAuf(e.target.value)}
-                                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
-                            >
-                                <option value="audio/L16;rate=16000">audio/L16;rate=16000</option>
-                                <option value="audio/L16;rate=8000">audio/L16;rate=8000</option>
-                            </select>
-                        </label>
-
-                        <label className="block">
                             <span className="font-medium">BGS (âm nền)</span>
                             <select
                                 value={bgs}
@@ -186,9 +199,21 @@ export default function Main() {
                                 <option value="gb18030">gb18030</option>
                             </select>
                         </label>
+
+                        <label className="block">
+                            <span className="font-medium">AUF</span>
+                            <select
+                                value={auf}
+                                onChange={(e) => setAuf(e.target.value)}
+                                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+                            >
+                                <option value="audio/L16;rate=16000">audio/L16;rate=16000</option>
+                                <option value="audio/L16;rate=8000">audio/L16;rate=8000</option>
+                            </select>
+                        </label>
                     </div>
 
-                    <div className="pt-4 text-center">
+                    <div className="pt-0 text-center">
                         <button
                             onClick={handleSubmit}
                             disabled={loading}
@@ -201,10 +226,10 @@ export default function Main() {
                 </div>
             </div>
 
-            <div className="w-full max-w-sm">
-                <h2 className="font-semibold text-lg mb-2">🎧 Kết quả</h2>
+            <div className="w-full flex items-center justify-between h-[50px]">
+                <div><h1 className="font-bold text-2xl text-gray-800 w-[180px]">🎧 Kết quả:</h1></div>
                 {audioUrl && (
-                    <div className="mt-4 text-center">
+                    <div className="text-center">
                         <audio controls src={audioUrl} />
                     </div>
                 )}

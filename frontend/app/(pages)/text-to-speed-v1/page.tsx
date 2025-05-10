@@ -7,7 +7,7 @@ function Create() {
   return (
     <div className=''>
       <div className='flex justify-center items-center'>
-        <Main />
+        {/* <Main /> */}
       </div>
 
     </div>

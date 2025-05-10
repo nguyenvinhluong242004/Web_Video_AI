@@ -1,4 +1,7 @@
-const { Groq } = require('groq-sdk');
+import { Groq } from 'groq-sdk';
+
+import dotenv from 'dotenv';
+dotenv.config({ path: './src/app/config/.env' });
 
 // Khởi tạo Groq API
 const groq = new Groq({
@@ -6,7 +9,7 @@ const groq = new Groq({
 });
 
 // Hàm gọi Groq API để tạo kịch bản video
-function generateScript(prompt) {
+export function generateScript(prompt) {
   return new Promise((resolve, reject) => {
     const messages = [
       {
@@ -39,5 +42,3 @@ function generateScript(prompt) {
     }
   });
 }
-
-module.exports = { generateScript };

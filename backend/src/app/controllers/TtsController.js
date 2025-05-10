@@ -1,4 +1,4 @@
-const { textToSpeech } = require('../../services/ttsService');
+import { textToSpeech } from "../../services/ttsService.js";
 
 const synthesizeSpeech = async (req, res) => {
     try {
@@ -15,4 +15,5 @@ const synthesizeSpeech = async (req, res) => {
     }
 };
 
-module.exports = { synthesizeSpeech };
+// Dùng export thay vì module.exports
+export { synthesizeSpeech };

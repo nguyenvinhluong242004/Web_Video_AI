@@ -1,12 +1,13 @@
-const path = require('path'); // Xử lý đường dẫn tệp
-const express = require('express'); // Web framework cho Node.js
-const morgan = require('morgan'); // Module ghi log
-const session = require('express-session');
-const bodyParser = require('body-parser'); // Xử lý dữ liệu từ các yêu cầu HTTP
-const cors = require('cors');
+import path from 'path'; // Xử lý đường dẫn tệp
+import express from 'express'; // Web framework cho Node.js
+import morgan from 'morgan'; // Module ghi log
+import session from 'express-session';
+import bodyParser from 'body-parser'; // Xử lý dữ liệu từ các yêu cầu HTTP
+import cors from 'cors'; // Middleware CORS
 
 // Load biến môi trường từ file .env
-require('dotenv').config({ path: './src/app/config/.env' });
+import dotenv from 'dotenv';
+dotenv.config({ path: './src/app/config/.env' });
 
 const app = express();
 const port = process.env.PORT || 6868; // Sử dụng PORT từ .env hoặc mặc định là 8888
@@ -30,21 +31,17 @@ app.use(session({
 // Middleware để parse dữ liệu JSON
 app.use(bodyParser.json());
 
-const route = require('./app/routes');
+import route from './app/routes/index.js'; // Thay đổi đường dẫn nếu cần
 
 app.use(morgan('combined')); // Cấu hình ghi log HTTP requests
 app.use(express.json()); // Xử lý dữ liệu JSON từ yêu cầu HTTP
-
-
 
 // Kiểm tra xem .env có được load thành công không
 console.log('Environment variables loaded:');
 console.log(`PORT: ${process.env.PORT}`);
 
-
 // Route init
 route(app);
-
 
 // Lắng nghe trên cổng
 app.listen(port, () => console.log(`Server is running at http://localhost:${port}`));

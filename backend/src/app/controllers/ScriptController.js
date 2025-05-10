@@ -1,4 +1,4 @@
-const { generateScript } = require ('../../services/scriptService');
+import { generateScript } from '../../services/scriptService.js';
 
 const synthesizeScript = async (req, res) => {
   const { prompt } = req.body;
@@ -16,4 +16,5 @@ const synthesizeScript = async (req, res) => {
   }
 };
 
-module.exports = { synthesizeScript };
+// Sử dụng export thay vì module.exports
+export { synthesizeScript };

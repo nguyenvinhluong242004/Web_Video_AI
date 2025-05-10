@@ -1,9 +1,9 @@
-const express = require('express');
-const { synthesizeSpeech } = require('../controllers/TtsController');
+import express from 'express';
+import { synthesizeSpeech } from '../controllers/TtsController.js';
 
-const ttsRoutes = express.Router();
+const ttsRoute = express.Router();
 
 // Định nghĩa route cho Text to Speech
-ttsRoutes.post('/', synthesizeSpeech);
+ttsRoute.post('/', synthesizeSpeech);
 
-module.exports = ttsRoutes;
+export { ttsRoute };

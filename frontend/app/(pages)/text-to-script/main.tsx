@@ -2,9 +2,15 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-export default function Main() {
-    const [prompt, setPrompt] = useState("");
-    const [script, setScript] = useState<string | null>(null);
+interface MainProps {
+    script: string | null;
+    setScript: React.Dispatch<React.SetStateAction<string | null>>;
+    prompt: string;
+    setPrompt: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export default function Main({ script, setScript, prompt, setPrompt }: MainProps) {
+
     const [loading, setLoading] = useState(false);
 
     const handleGenerate = async () => {
@@ -17,6 +23,7 @@ export default function Main() {
                 prompt,
             });
             setScript(response.data.script);
+            console.log("Kịch bản:", response.data.script);
         } catch (error) {
             console.error("Lỗi khi gọi API:", error);
             setScript("⚠️ Không thể tạo kịch bản.");
@@ -25,37 +32,47 @@ export default function Main() {
     };
 
     return (
-        <div className="min-w-5xl mx-auto mt-10 p-6 rounded-xl shadow-md space-y-6 text-black flex flex-col gap-5 max-w-2xl">
-            <h1 className="text-2xl font-bold text-center text-gray-800">🎬 Viết kịch bản Tiktok</h1>
+        <div className="w-full mx-auto justify-content-center rounded-xl text-black flex flex-col gap-1 h-full">
+            <h1 className="text-2xl font-bold text-center text-gray-800">🎬 Viết kịch bản Video</h1>
 
-            <label className="block">
-                <span className="font-medium">Tiêu đề video</span>
-                <input
-                    type="text"
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Nhập tiêu đề video..."
-                    className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                />
-            </label>
+            <div className="flex gap-4 mt-2">
 
-            <div className="text-center">
-                <button
-                    onClick={handleGenerate}
-                    disabled={loading}
-                    className={`px-6 py-2 rounded-md text-white font-semibold ${loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
-                        }`}
-                >
-                    {loading ? "Đang tạo..." : "✍️ Tạo kịch bản"}
-                </button>
+                <div className="h-full">
+
+                    <h3 className="text-xl mt-4 font-bold">Tiêu đề video</h3>
+                    <label className="block">
+                        <textarea
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            placeholder="Nhập tiêu đề video..."
+                            className="w-[400px] mt-1 block rounded-md border border-gray-300 px-3 py-2 resize-none focus:outline-none :focus:border-transparent :focus:ring-none"
+                            rows={14}
+                        />
+                    </label>
+
+
+                    <div className="text-center mt-3">
+                        <button
+                            onClick={handleGenerate}
+                            disabled={loading}
+                            className={`px-6 py-2 rounded-md text-white font-semibold ${loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
+                                }`}
+                        >
+                            {loading ? "Đang tạo..." : "✍️ Tạo kịch bản"}
+                        </button>
+                    </div>
+                </div>
+
+                <div className="w-full">
+                    <h3 className="text-xl font-bold mt-4">📜 Kịch bản</h3>
+                    <div className={`bg-gray-100 rounded-md p-4 mt-1 w-[500px] whitespace-pre-wrap ${script ? "" : "h-[404px]"} `}>
+                        {script}
+                    </div>
+                </div>
+
             </div>
 
-            {script && (
-                <div className="bg-gray-100 rounded-md p-4 mt-4 shadow-inner whitespace-pre-wrap">
-                    <h2 className="font-semibold text-lg mb-2">📜 Kịch bản</h2>
-                    {script}
-                </div>
-            )}
+
         </div>
     );
 }
