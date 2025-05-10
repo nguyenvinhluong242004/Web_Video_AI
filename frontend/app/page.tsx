@@ -9,7 +9,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("script");
   const [script, setScript] = useState<string | null>(null);
   const [scriptContent, setScriptContent] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState("Cho tôi nội dung về tương lai của người đàn ông vào tuổi 22 của cuộc sống. Nội dung ý nghĩa, cảm xúc...\n'Bỏ đi phần chú thích, ghi chú, giới thiệu, chỉ bao gồm mỗi đoạn văn chứa nội dung'");
+  const [prompt, setPrompt] = useState("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...\n'Bỏ đi phần chú thích, ghi chú, giới thiệu, chỉ bao gồm mỗi đoạn văn chứa nội dung'");
   const [scripts, setScripts] = useState<string[]>([]);
   const [audioUrls, setAudioUrls] = useState<string[]>([]);
   const [mergedAudioUrl, setMergedAudioUrl] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export default function Home() {
   const tabs = [
     { key: "script", label: "Tạo nội dung" },
     { key: "image", label: "Tạo ảnh" },
-    { key: "speed", label: "Tạo speed" },
+    { key: "speed", label: "Tạo giọng nói" },
     { key: "video", label: "Tạo video" },
   ];
 

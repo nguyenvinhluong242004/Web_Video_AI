@@ -45,7 +45,7 @@ export default function Main({ script, setScript, prompt, setPrompt }: MainProps
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder="Nhập tiêu đề video..."
-                            className="w-[400px] mt-1 block rounded-md border border-gray-300 px-3 py-2 resize-none focus:outline-none :focus:border-transparent :focus:ring-none"
+                            className="w-[400px] mt-0 block rounded-md border border-gray-300 px-3 py-2 resize-none focus:outline-none :focus:border-transparent :focus:ring-none"
                             rows={14}
                         />
                     </label>
@@ -65,7 +65,7 @@ export default function Main({ script, setScript, prompt, setPrompt }: MainProps
 
                 <div className="w-full">
                     <h3 className="text-xl font-bold mt-4">📜 Kịch bản</h3>
-                    <div className={`bg-gray-100 rounded-md p-4 mt-1 w-[500px] whitespace-pre-wrap ${script ? "" : "h-[404px]"} `}>
+                    <div className={`bg-gray-100 rounded-md px-3 py-2 mt-0 w-[500px] whitespace-pre-wrap ${script ? "" : "h-[404px]"} `}>
                         {script}
                     </div>
                 </div>

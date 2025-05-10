@@ -15,11 +15,11 @@ export function generateScript(prompt) {
       {
         role: 'system',
         content:
-          'Bạn là một Tiktoker chuyên viết kịch bản video hấp dẫn, ngắn gọn, mang tính giáo dục và giải trí. Trả lời bằng tiếng Việt.',
+          'Bạn là một Nhà văn chuyên viết nội dung hấp dẫn, ý nghĩa, đầy cảm xúc, trí tưởng tượng, mang tính giáo dục và giải trí. Bạn viết nội dung bằng tiếng Việt.',
       },
       {
         role: 'user',
-        content: `Viết kịch bản video khoảng 100-150 từ với tiêu đề: "${prompt}".`,
+        content: `Viết nội dung khoảng 100-200 từ với yêu cầu: "${prompt}". Vietnamese!`,
       },
     ];
 
