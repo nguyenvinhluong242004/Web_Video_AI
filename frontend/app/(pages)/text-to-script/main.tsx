@@ -11,7 +11,7 @@ export default function Main() {
         if (!prompt.trim()) return;
         setLoading(true);
         try {
-            const response = await axios.post("http://localhost:6868/script", {
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/script`, {
                 prompt,
             });
             setScript(response.data.script);
