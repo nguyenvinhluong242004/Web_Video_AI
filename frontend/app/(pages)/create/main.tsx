@@ -32,19 +32,13 @@ export default function Main() {
                     tte,
                 },
                 {
-                    responseType: "arraybuffer", // nhận dữ liệu nhị phân
+                    responseType: "arraybuffer",
                 }
             );
-
-            console.log("Response:", response);
 
             const audioBlob = new Blob([response.data], { type: "audio/mpeg" });
             const url = URL.createObjectURL(audioBlob);
             setAudioUrl(url);
-
-            // Tự động phát khi tạo xong
-            // const audio = new Audio(url);
-            // audio.play();
         } catch (error) {
             console.error("Error during API call:", error);
         }
@@ -52,8 +46,8 @@ export default function Main() {
     };
 
     return (
-        <div className="min-w-3xl mx-auto mt-10 p-6 rounded-xl shadow-md space-y-6 text-black flex gap-5">
-            <div>
+        <div className="min-w-5xl mx-auto mt-10 p-6 rounded-xl shadow-md space-y-6 text-black flex gap-5">
+            <div className="w-full max-w-xl">
                 <h1 className="text-2xl font-bold text-center text-gray-800">🗣️ Text to Speech</h1>
 
                 <div className="space-y-4">
@@ -71,12 +65,29 @@ export default function Main() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label className="block">
                             <span className="font-medium">VCN</span>
-                            <input
-                                type="text"
+                            <select
                                 value={vcn}
                                 onChange={(e) => setVcn(e.target.value)}
                                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                            />
+                            >
+                                <optgroup label="Tiếng Việt">
+                                    <option value="xiaoyun">xiaoyun</option>
+                                </optgroup>
+                                <optgroup label="Tiếng Anh">
+                                    <option value="x_John">x_John</option>
+                                    <option value="x_Steve">x_Steve</option>
+                                    <option value="x_Catherine">x_Catherine</option>
+                                </optgroup>
+                                <optgroup label="Tiếng Trung">
+                                    <option value="x_xiaoyan">x_xiaoyan</option>
+                                    <option value="x_xiaomei">x_xiaomei</option>
+                                </optgroup>
+                                <optgroup label="Khác">
+                                    <option value="mariane">mariane</option>
+                                    <option value="leonie">leonie</option>
+                                    <option value="mohamed">mohamed</option>
+                                </optgroup>
+                            </select>
                         </label>
 
                         <label className="block">
@@ -88,7 +99,7 @@ export default function Main() {
                                 min={0}
                                 max={100}
                                 step={1}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                                className="mt-1 w-full"
                             />
                             <span className="block text-center">{speed}</span>
                         </label>
@@ -102,7 +113,7 @@ export default function Main() {
                                 min={0}
                                 max={100}
                                 step={1}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                                className="mt-1 w-full"
                             />
                             <span className="block text-center">{volume}</span>
                         </label>
@@ -116,44 +127,46 @@ export default function Main() {
                                 min={0}
                                 max={100}
                                 step={1}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                                className="mt-1 w-full"
                             />
                             <span className="block text-center">{pitch}</span>
                         </label>
-
 
                         <label className="block">
                             <span className="font-medium">AUE</span>
                             <select
                                 value={aue}
                                 onChange={(e) => setAue(e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
                             >
-                                <option value="lame">Lame</option>
-                                <option value="speex">Speex</option>
+                                <option value="lame">lame (MP3)</option>
+                                <option value="raw">raw (PCM)</option>
+                                <option value="speex">speex (8k)</option>
                             </select>
                         </label>
 
                         <label className="block">
                             <span className="font-medium">AUF</span>
-                            <input
-                                type="text"
+                            <select
                                 value={auf}
                                 onChange={(e) => setAuf(e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                            />
+                                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+                            >
+                                <option value="audio/L16;rate=16000">audio/L16;rate=16000</option>
+                                <option value="audio/L16;rate=8000">audio/L16;rate=8000</option>
+                            </select>
                         </label>
 
                         <label className="block">
-                            <span className="font-medium">BGS</span>
-                            <input
-                                type="number"
+                            <span className="font-medium">BGS (âm nền)</span>
+                            <select
                                 value={bgs}
                                 onChange={(e) => setBgs(Number(e.target.value))}
-                                min={0}
-                                max={1}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
-                            />
+                                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
+                            >
+                                <option value={0}>Không</option>
+                                <option value={1}>Có</option>
+                            </select>
                         </label>
 
                         <label className="block">
@@ -161,10 +174,14 @@ export default function Main() {
                             <select
                                 value={tte}
                                 onChange={(e) => setTte(e.target.value)}
-                                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2"
+                                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2"
                             >
-                                <option value="utf8">UTF-8</option>
-                                <option value="gb2312">GB2312</option>
+                                <option value="utf8">utf8</option>
+                                <option value="gb2312">gb2312</option>
+                                <option value="gbk">gbk</option>
+                                <option value="big5">big5</option>
+                                <option value="unicode">unicode (UTF-16LE)</option>
+                                <option value="gb18030">gb18030</option>
                             </select>
                         </label>
                     </div>
@@ -181,8 +198,9 @@ export default function Main() {
                     </div>
                 </div>
             </div>
-            <div>
-                <div>Result</div>
+
+            <div className="w-full max-w-sm">
+                <h2 className="font-semibold text-lg mb-2">🎧 Kết quả</h2>
                 {audioUrl && (
                     <div className="mt-4 text-center">
                         <audio controls src={audioUrl} />

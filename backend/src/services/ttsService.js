@@ -30,7 +30,7 @@ const textToSpeech = (options) => {
     ws.on('open', () => {
       const textUtf8 = Buffer.from(text, 'utf8');
       const textBase64 = textUtf8.toString('base64');
-
+      console.log(options)
       const payload = {
         common: {
           app_id: APP_ID,
