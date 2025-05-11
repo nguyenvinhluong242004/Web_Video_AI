@@ -30,10 +30,13 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
                     prompt,
                 }
             );
-            handleScriptDone(response.data.script);
             console.log("Đã nhận phản hồi từ API:", response);
+            const { data } = response;
+            console.log("Kịch bản:", data.script);
+            handleScriptDone(data.script);
         } catch (error) {
             console.error("Lỗi khi gọi API:", error);
+            alert("bug")
         }
         setLoading(false);
     };
