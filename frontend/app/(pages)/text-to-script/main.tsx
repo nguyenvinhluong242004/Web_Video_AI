@@ -30,6 +30,7 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
                     prompt,
                 }
             );
+            alert("done")
             console.log("Đã nhận phản hồi từ API:", response);
             const { data } = response;
             console.log("Kịch bản:", data.script);
