@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Script from "./(pages)/text-to-script/main";
+import Image from "./(pages)/text-to-image-v1/main";
+import ImageV2 from "./(pages)/text-to-image-v2/main";
 import Speed from "./(pages)/text-to-speed-v1/contentMain";
 import SpeedV2 from "./(pages)/text-to-speed-v2/main";
 import mergeAudios from "./utils/mergeAudio";
@@ -15,6 +17,7 @@ export default function Home() {
   const [mergedAudioUrl, setMergedAudioUrl] = useState<string | null>(null);
   const [restart, setRestart] = useState(false);
   const [speedVersion, setSpeedVersion] = useState<"v1" | "v2">("v2");
+  const [imageVersion, setImageVersion] = useState<"v1" | "v2">("v2");
   const [audio, setAudio] = useState<string | null>(null);
 
 
@@ -30,7 +33,35 @@ export default function Home() {
       case "script":
         return <Script script={script} setScript={setScript} prompt={prompt} setPrompt={setPrompt} handleScriptDone={handleScriptDone} />;
       case "image":
-        return <h1 className="text-2xl font-bold text-black">🖼️ Giao diện tạo ảnh ở đây</h1>;
+        return (
+          <div className="w-full flex flex-col items-center gap-4">
+            <div className="flex space-x-4 mb-1">
+              <button
+                onClick={() => setImageVersion("v1")}
+                className={`px-4 py-1 rounded-full text-sm font-semibold border ${imageVersion === "v1"
+                  ? "bg-black text-white"
+                  : "text-black hover:bg-gray-100"
+                  }`}
+              >
+                Image V1
+              </button>
+              <button
+                onClick={() => setImageVersion("v2")}
+                className={`px-4 py-1 rounded-full text-sm font-semibold border ${imageVersion === "v2"
+                  ? "bg-black text-white"
+                  : "text-black hover:bg-gray-100"
+                  }`}
+              >
+                Image V2
+              </button>
+            </div>
+            {imageVersion === "v1" ? (
+              <Image />
+            ) : (
+              <ImageV2 />
+            )}
+          </div>
+        );
       case "speed":
         return (
           <div className="w-full flex flex-col items-center gap-4">
