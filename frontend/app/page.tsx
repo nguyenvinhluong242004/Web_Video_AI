@@ -7,7 +7,7 @@ import mergeAudios from "./utils/mergeAudio";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("script");
-  const [script, setScript] = useState<string | null>(null);
+  const [script, setScript] = useState<string | null>("Nội dung ở đây!");
   const [scriptContent, setScriptContent] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string | null>("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...\n'Bỏ đi phần chú thích, ghi chú, giới thiệu, chỉ bao gồm mỗi đoạn văn chứa nội dung'");
   const [scripts, setScripts] = useState<string[]>([]);
@@ -82,7 +82,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (script) {
+    if (script && script !== "" && script !== "Nội dung ở đây!" && script.trim() !== "") {
       setScriptContent(script);
       const splitScript = script.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
       setScripts(splitScript);
@@ -96,17 +96,24 @@ export default function Home() {
   }, [script]);
 
   useEffect(() => {
-    const allAudiosExist = audioUrls.length === scripts.length && audioUrls.every(url => typeof url === "string" && url.trim() !== "");
+    const allAudiosExist =
+      audioUrls.length === scripts.length &&
+      audioUrls.every(url => typeof url === "string" && url.trim() !== "");
 
     if (scripts.length > 0 && allAudiosExist) {
       (async () => {
-        const mergedBlob = await mergeAudios(audioUrls);
-        const mergedUrl = URL.createObjectURL(mergedBlob);
-        setMergedAudioUrl(mergedUrl);
-        setRestart(false); // Đặt lại trạng thái restart sau khi ghép nối
+        try {
+          const mergedBlob = await mergeAudios(audioUrls);
+          const mergedUrl = URL.createObjectURL(mergedBlob);
+          setMergedAudioUrl(mergedUrl);
+          setRestart(false);
+        } catch (err) {
+          console.error("Lỗi khi merge audio:", err);
+        }
       })();
     }
   }, [audioUrls, scripts]);
+
 
 
   return (
