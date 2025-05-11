@@ -7,7 +7,7 @@ import mergeAudios from "./utils/mergeAudio";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("script");
-  const [script, setScript] = useState<string | null>("Nội dung ở đây!");
+  const [script, setScript] = useState<string | null>(null);
   const [scriptContent, setScriptContent] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string | null>("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...\n'Bỏ đi phần chú thích, ghi chú, giới thiệu, chỉ bao gồm mỗi đoạn văn chứa nội dung'");
   const [scripts, setScripts] = useState<string[]>([]);
@@ -81,19 +81,19 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    if (script && script !== "" && script !== "Nội dung ở đây!" && script.trim() !== "") {
-      setScriptContent(script);
-      const splitScript = script.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
-      setScripts(splitScript);
-      setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
-      setRestart(true); // Đặt lại trạng thái restart
-      setMergedAudioUrl(null); // Đặt lại mergedAudioUrl khi script thay đổi
-    } else {
-      setScripts([]);
-    }
+  // useEffect(() => {
+  //   if (script && script !== "" && script.trim() !== "") {
+  //     setScriptContent(script);
+  //     const splitScript = script.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
+  //     setScripts(splitScript);
+  //     setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
+  //     setRestart(true); // Đặt lại trạng thái restart
+  //     setMergedAudioUrl(null); // Đặt lại mergedAudioUrl khi script thay đổi
+  //   } else {
+  //     setScripts([]);
+  //   }
 
-  }, [script]);
+  // }, [script]);
 
   useEffect(() => {
     const allAudiosExist =
