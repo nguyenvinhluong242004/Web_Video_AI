@@ -89,7 +89,8 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
                         />
                     </label>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-[120px] md:h-full overflow-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> 
+                        {/* h-[120px] md:h-full overflow-auto */}
                         <label className="block">
                             <span className="font-medium">Voice</span>
                             <select
