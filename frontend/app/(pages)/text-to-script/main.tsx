@@ -14,20 +14,21 @@ export default function Main({ script, setScript, prompt, setPrompt }: MainProps
     const [loading, setLoading] = useState(false);
 
     const handleGenerate = async () => {
-        if (!prompt.trim()) return;
+        if (!prompt.trim() || prompt.trim() === "") return;
         setLoading(true);
-        try {
-            await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/ping`);
+        // try {
+        //     await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/ping`);
 
-            const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/script`, {
-                prompt,
-            });
-            setScript(response.data.script);
-            console.log("Kịch bản:", response.data.script);
-        } catch (error) {
-            console.error("Lỗi khi gọi API:", error);
-            setScript("⚠️ Không thể tạo kịch bản.");
-        }
+        //     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/script`, {
+        //         prompt,
+        //     });
+        //     setScript(response.data.script);
+        //     console.log("Kịch bản:", response.data.script);
+        // } catch (error) {
+        //     console.error("Lỗi khi gọi API:", error);
+        //     setScript("⚠️ Không thể tạo kịch bản.");
+        // }
+        setScript("Đang tạo kịch bản...");
         setLoading(false);
     };
 
