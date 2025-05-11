@@ -97,7 +97,22 @@ export default function Home() {
     setScripts([]);
     setScriptContent(text);
     setScript(text);
-    const splitScript = text.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
+
+    let splitScript: string[];
+
+    if (text.includes("\n")) {
+      splitScript = text
+        .split(/\n+/)
+        .map((s) => s.trim())
+        .filter((s) => s !== "");
+    } else {
+      splitScript = text
+        .replace(/([.?!])\s+/g, "$1|") // Thêm dấu phân cách tạm
+        .split("|")
+        .map((s) => s.trim())
+        .filter((s) => s !== "");
+    }
+    
     setScripts(splitScript);
     setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
     setRestart(true); // Đặt lại trạng thái restart
