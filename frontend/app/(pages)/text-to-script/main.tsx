@@ -33,19 +33,9 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
             console.log("Đã nhận phản hồi từ API:", response);
             const { data } = response;
             console.log("Kịch bản:", data.script);
-            let scriptContent = data.script;
-            if (typeof data.script === 'string') {
-                console.log("string")
-                script = data.script;
-            } else if (typeof data.script === 'object') {
-                console.log("object")
-                script = JSON.stringify(data.script);
-            }
-
-            handleScriptDone(scriptContent);
+            handleScriptDone(data.script);
         } catch (error) {
-            console.error("Lỗi khi gọi API:", error);
-            alert("bug")
+            console.error("Lỗi khi gọi API:", error); // mobile vẫn bug
         }
         setLoading(false);
     };
