@@ -6,7 +6,7 @@ interface MainProps {
     script: string | null;
     setScript: React.Dispatch<React.SetStateAction<string | null>>;
     prompt: string;
-    setPrompt: React.Dispatch<React.SetStateAction<string>>;
+    setPrompt: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export default function Main({ script, setScript, prompt, setPrompt }: MainProps) {
