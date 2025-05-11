@@ -7,9 +7,10 @@ interface MainProps {
     setScript: React.Dispatch<React.SetStateAction<string | null>>;
     prompt: string | null;
     setPrompt: React.Dispatch<React.SetStateAction<string | null>>;
+    handleScriptDone: (text: string) => void;
 }
 
-export default function Main({ script, setScript, prompt, setPrompt }: MainProps) {
+export default function Main({ script, setScript, prompt, setPrompt, handleScriptDone }: MainProps) {
 
     const [loading, setLoading] = useState(false);
 
@@ -33,6 +34,7 @@ export default function Main({ script, setScript, prompt, setPrompt }: MainProps
             const { data } = response;
             console.log("Kịch bản:", data.script);
             setScript(data.script);
+            handleScriptDone(data.script);
         } catch (error) {
             console.error("Lỗi khi gọi API:", error);
             setScript("⚠️ Không thể tạo kịch bản.");

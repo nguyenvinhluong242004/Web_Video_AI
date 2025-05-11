@@ -28,7 +28,7 @@ export default function Home() {
   const renderContent = () => {
     switch (activeTab) {
       case "script":
-        return <Script script={script} setScript={setScript} prompt={prompt} setPrompt={setPrompt} />;
+        return <Script script={script} setScript={setScript} prompt={prompt} setPrompt={setPrompt} handleScriptDone={handleScriptDone} />;
       case "image":
         return <h1 className="text-2xl font-bold text-black">🖼️ Giao diện tạo ảnh ở đây</h1>;
       case "speed":
@@ -81,21 +81,27 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    if (!script) return;
-    if (typeof script === "string" && script.trim() === "") return;
-    if (script) {
-      setScriptContent(script);
-      const splitScript = script.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
-      setScripts(splitScript);
-      setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
-      setRestart(true); // Đặt lại trạng thái restart
-      setMergedAudioUrl(null); // Đặt lại mergedAudioUrl khi script thay đổi
-    } else {
-      setScripts([]);
-    }
+  // useEffect(() => {
+  //   if (!script) return;
+  //   if (typeof script === "string" && script.trim() === "") return;
+  //   if (script) {
 
-  }, [script]);
+  //   } else {
+  //     setScripts([]);
+  //   }
+
+  // }, [script]);
+
+  const handleScriptDone = (text: string) => {
+    if (text.trim() === "") return;
+    setScripts([]);
+    setScriptContent(text);
+    const splitScript = text.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
+    setScripts(splitScript);
+    setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
+    setRestart(true); // Đặt lại trạng thái restart
+    setMergedAudioUrl(null); // Đặt lại mergedAudioUrl khi script thay đổi
+  }
 
   useEffect(() => {
     const allAudiosExist =
