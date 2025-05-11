@@ -33,7 +33,16 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
             console.log("Đã nhận phản hồi từ API:", response);
             const { data } = response;
             console.log("Kịch bản:", data.script);
-            handleScriptDone(data.script);
+            let scriptContent = data.script;
+            if (typeof data.script === 'string') {
+                console.log("string")
+                script = data.script;
+            } else if (typeof data.script === 'object') {
+                console.log("object")
+                script = JSON.stringify(data.script);
+            }
+
+            handleScriptDone(scriptContent);
         } catch (error) {
             console.error("Lỗi khi gọi API:", error);
             alert("bug")
