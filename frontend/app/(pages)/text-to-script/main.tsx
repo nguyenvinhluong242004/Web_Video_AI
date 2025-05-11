@@ -44,7 +44,7 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
         <div className="w-full mx-auto justify-content-center rounded-xl text-black flex flex-col gap-1 h-full">
             <h1 className="text-2xl font-bold text-center text-gray-800">🎬 Viết kịch bản Video</h1>
 
-            <div className="flex gap-4 mt-2">
+            <div className="flex flex-col md:flex-row gap-4 mt-2">
 
                 <div className="h-full">
 
@@ -54,7 +54,7 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
                             value={prompt ? prompt : ""}
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder="Nhập tiêu đề video..."
-                            className="w-[400px] mt-0 block rounded-md border border-gray-300 px-3 py-2 resize-none focus:outline-none :focus:border-transparent :focus:ring-none"
+                            className="w-full md:w-[400px] mt-0 block rounded-md border border-gray-300 px-3 py-2 resize-none focus:outline-none :focus:border-transparent :focus:ring-none"
                             rows={14}
                         />
                     </label>
@@ -72,9 +72,9 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
                     </div>
                 </div>
 
-                <div className="w-full">
+                <div className="w-full md:w-1/2">
                     <h3 className="text-xl font-bold mt-4">📜 Kịch bản</h3>
-                    <div className={`bg-gray-100 rounded-md px-3 py-2 mt-0 w-[500px] whitespace-pre-wrap ${script ? "" : "h-[404px]"} `}>
+                    <div className={`bg-gray-100 rounded-md px-3 py-2 mt-0 w-full whitespace-pre-wrap ${script ? "" : "h-[404px]"} `}>
                         {script}
                     </div>
                 </div>

@@ -32,27 +32,27 @@ export default function ContentMain({ restart, scripts, setScripts, audioUrls, s
     return (
         <div>
             <h1 className="text-2xl font-bold text-center mb-3 text-gray-800">🗣️ Text to Speech</h1>
-            <div className="flex border-b-2 border-gray-600">
-                <div className="flex flex-col space-x-2 pb-1 mb-0 text-black gap-1 mr-2">
+            <div className="flex flex-col md:flex-row border-b-2 pb-12 md:pb-3 border-gray-600">
+                <div className="flex flex-col space-x-2 pb-1 mb-0 text-black gap-1 md:mr-3">
                     <div>
                         <span className="text-medium mb-5">List Content: {scripts.length}</span>
                     </div>
-                    <div className="max-h-[500px] overflow-y-auto pr-1 custom-scroll flex flex-col space-x-2 pb-2 mb-3 text-black gap-1 mr-2"
+                    <div className="w-full max-h-[120px] md:max-h-[500px] overflow-y-auto custom-scroll flex flex-col space-x-2 pb-2 mb-3 text-black gap-1"
                         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }} // Firefox, IE
                     >
                         {scripts.map((_, index) => (
-                            <div className="w-[500px] text-center flex bg-gray-400 rounded-md" key={index}>
+                            <div className="w-full md:w-[500px] text-center flex bg-gray-400 rounded-md" key={index}>
                                 <div>
                                     <button
                                         key={index}
                                         onClick={() => setActiveIndex(index)}
-                                        className={`px-4 py-2 w-[100px] h-full rounded-t ${activeIndex === index ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                                        className={`px-4 py-2 w-full md:w-[100px] h-full rounded-t ${activeIndex === index ? "bg-blue-500 text-white" : "bg-gray-200"}`}
                                         style={{borderRadius: "5px 0 0 5px"}}
                                     >
                                         Text {index + 1}
                                     </button>
                                 </div>
-                                <div className="w-[400px] pr-2 pl-2 text-sm">{scripts[index]}</div>
+                                <div className="w-full md:w-[400px] pr-2 pl-2 text-sm">{scripts[index]}</div>
                             </div>
                         ))}
                     </div>
@@ -66,7 +66,7 @@ export default function ContentMain({ restart, scripts, setScripts, audioUrls, s
                 ))}
             </div>
             {mergedAudioUrl && (
-            <div className="flex items-center justify-center">
+            <div className="mt-3 md:mt-3 flex flex-col md:flex-row md:items-center justify-center gap-2">
               <div>
 
                 <h2 className="text-xl font-bold text-gray-800 pr-15">🎧 Audio đã được ghép nối: </h2>

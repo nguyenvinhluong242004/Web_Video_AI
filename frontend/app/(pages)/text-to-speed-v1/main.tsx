@@ -75,7 +75,7 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
     };
 
     return (
-        <div className="w-[500px] mx-auto rounded-xl text-black flex flex-col gap-4">
+        <div className="w-full md:w-[500px] mx-auto rounded-xl text-black flex flex-col gap-4">
             <div className="w-full max-w-xl">
                 <div className="space-y-4  border-b pb-3">
                     <label className="block">
@@ -89,9 +89,9 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
                         />
                     </label>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 h-[120px] md:h-full overflow-auto">
                         <label className="block">
-                            <span className="font-medium">VCN</span>
+                            <span className="font-medium">Voice</span>
                             <select
                                 value={vcn}
                                 onChange={(e) => setVcn(e.target.value)}
@@ -226,7 +226,7 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
                 </div>
             </div>
 
-            <div className="w-full flex items-center justify-between h-[50px]">
+            <div className="w-full flex flex-col sm:flex-row md:items-center justify-between h-[50px]">
                 <div><h1 className="font-bold text-2xl text-gray-800 w-[180px]">🎧 Kết quả:</h1></div>
                 {audioUrl && (
                     <div className="text-center">

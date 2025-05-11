@@ -53,8 +53,8 @@ export default function Main({ script, setScript, audio, setAudio }: MainProps) 
     return (
         <div>
             <h1 className="text-2xl font-bold text-center text-gray-800">🗣️ Text to Speech</h1>
-            <div className="mt-2 mx-auto p-0 rounded-xl text-black flex gap-5">
-                <div className="w-full max-w-xl">
+            <div className="mt-2 mx-auto p-0 rounded-xl text-black flex flex-col md:flex-row gap-5">
+                <div className="w-full">
 
                     <div className="space-y-4">
                         <label className="block">
@@ -64,7 +64,7 @@ export default function Main({ script, setScript, audio, setAudio }: MainProps) 
                                 onChange={(e) => setTextConfig(e.target.value)}
                                 placeholder="Nhập văn bản"
                                 rows={12}
-                                className="w-[500px] mt-1 block rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                className="w-full md:w-[500px] mt-1 block rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             />
                         </label>
 

@@ -19,10 +19,10 @@ export default function Home() {
 
 
   const tabs = [
-    { key: "script", label: "Tạo nội dung" },
-    { key: "image", label: "Tạo ảnh" },
-    { key: "speed", label: "Tạo giọng nói" },
-    { key: "video", label: "Tạo video" },
+    { key: "script", label: "Content" },
+    { key: "image", label: "Image" },
+    { key: "speed", label: "Speed" },
+    { key: "video", label: "Video" },
   ];
 
   const renderContent = () => {
@@ -81,17 +81,6 @@ export default function Home() {
     }
   };
 
-  // useEffect(() => {
-  //   if (!script) return;
-  //   if (typeof script === "string" && script.trim() === "") return;
-  //   if (script) {
-
-  //   } else {
-  //     setScripts([]);
-  //   }
-
-  // }, [script]);
-
   const handleScriptDone = (text: string) => {
     if (text.trim() === "") return;
     setScripts([]);
@@ -112,7 +101,7 @@ export default function Home() {
         .map((s) => s.trim())
         .filter((s) => s !== "");
     }
-    
+
     setScripts(splitScript);
     setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
     setRestart(true); // Đặt lại trạng thái restart
@@ -144,14 +133,15 @@ export default function Home() {
     <div className="min-h-screen font-sans overflow-hidden">
       <div className="fixed top-0 left-0 w-full z-50 bg-white border-b shadow-md">
         <div className="flex justify-center py-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center space-x-2">
             {tabs.map((tab, index) => (
               <div key={tab.key} className="flex items-center space-x-2">
                 <button
                   onClick={() => setActiveTab(tab.key)}
-                  className={`px-4 py-2 text-sm font-medium border rounded-xl cursor-pointer ${activeTab === tab.key
-                    ? "bg-gray-300 border-black text-black"
-                    : "text-gray-500 hover:text-black"
+                  className={`px-3 py-1 text-xs md:px-4 md:py-2 md:text-sm font-medium border rounded-xl cursor-pointer 
+                      ${activeTab === tab.key
+                      ? "bg-gray-300 border-black text-black"
+                      : "text-gray-500 hover:text-black"
                     }`}
                 >
                   {tab.label}
@@ -163,7 +153,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="pt-24 px-4 flex-1 overflow-y-scroll max-h-screen" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+      <div className="pt-17 md:pt-20 px-4 flex-1 overflow-y-scroll max-h-screen" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
         <style jsx>{`
           div::-webkit-scrollbar {
             display: none;
