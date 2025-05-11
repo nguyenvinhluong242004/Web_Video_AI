@@ -96,6 +96,7 @@ export default function Home() {
     if (text.trim() === "") return;
     setScripts([]);
     setScriptContent(text);
+    setScript(text);
     const splitScript = text.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
     setScripts(splitScript);
     setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
