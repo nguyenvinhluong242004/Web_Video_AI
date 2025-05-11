@@ -3,10 +3,10 @@ import React, { useState } from "react";
 import axios from "axios";
 
 interface MainProps {
-    script: string | "";
-    setScript: React.Dispatch<React.SetStateAction<string>>;
-    prompt: string | "";
-    setPrompt: React.Dispatch<React.SetStateAction<string>>;
+    script: string | null;
+    setScript: React.Dispatch<React.SetStateAction<string | null>>;
+    prompt: string | null;
+    setPrompt: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
 export default function Main({ script, setScript, prompt, setPrompt }: MainProps) {
@@ -14,21 +14,29 @@ export default function Main({ script, setScript, prompt, setPrompt }: MainProps
     const [loading, setLoading] = useState(false);
 
     const handleGenerate = async () => {
-        if (!prompt.trim() || prompt.trim() === "") return;
+        if (!prompt) return;
+        if (prompt.trim().length < 7) {
+            alert("Vui lòng nhập tiêu đề video dài hơn 7 ký tự.");
+            return;
+        }
         setLoading(true);
-        // try {
-        //     await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/ping`);
+        try {
+            await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/ping`);
 
-        //     const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/script`, {
-        //         prompt,
-        //     });
-        //     setScript(response.data.script);
-        //     console.log("Kịch bản:", response.data.script);
-        // } catch (error) {
-        //     console.error("Lỗi khi gọi API:", error);
-        //     setScript("⚠️ Không thể tạo kịch bản.");
-        // }
-        setScript("Đang tạo kịch bản...");
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}/script`,
+                {
+                    prompt,
+                }
+            );
+            console.log("Đã nhận phản hồi từ API:", response);
+            const { data } = response;
+            console.log("Kịch bản:", data.script);
+            setScript(data.script);
+        } catch (error) {
+            console.error("Lỗi khi gọi API:", error);
+            setScript("⚠️ Không thể tạo kịch bản.");
+        }
         setLoading(false);
     };
 
@@ -43,7 +51,7 @@ export default function Main({ script, setScript, prompt, setPrompt }: MainProps
                     <h3 className="text-xl mt-4 font-bold">Tiêu đề video</h3>
                     <label className="block">
                         <textarea
-                            value={prompt}
+                            value={prompt ? prompt : ""}
                             onChange={(e) => setPrompt(e.target.value)}
                             placeholder="Nhập tiêu đề video..."
                             className="w-[400px] mt-0 block rounded-md border border-gray-300 px-3 py-2 resize-none focus:outline-none :focus:border-transparent :focus:ring-none"

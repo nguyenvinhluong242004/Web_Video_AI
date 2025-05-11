@@ -7,9 +7,9 @@ import mergeAudios from "./utils/mergeAudio";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("script");
-  const [script, setScript] = useState("");
+  const [script, setScript] = useState<string | null>(null);
   const [scriptContent, setScriptContent] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...\n'Bỏ đi phần chú thích, ghi chú, giới thiệu, chỉ bao gồm mỗi đoạn văn chứa nội dung'");
+  const [prompt, setPrompt] = useState<string | null>("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...\n'Bỏ đi phần chú thích, ghi chú, giới thiệu, chỉ bao gồm mỗi đoạn văn chứa nội dung'");
   const [scripts, setScripts] = useState<string[]>([]);
   const [audioUrls, setAudioUrls] = useState<string[]>([]);
   const [mergedAudioUrl, setMergedAudioUrl] = useState<string | null>(null);
