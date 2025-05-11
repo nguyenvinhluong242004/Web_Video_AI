@@ -30,11 +30,9 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
                     prompt,
                 }
             );
-            alert(response.data.script)
+            alert(response.data.script);
             handleScriptDone(response.data.script);
             console.log("Đã nhận phản hồi từ API:", response);
-            const { data } = response;
-            console.log("Kịch bản:", data.script);
         } catch (error) {
             console.error("Lỗi khi gọi API:", error);
             setScript("⚠️ Không thể tạo kịch bản.");
