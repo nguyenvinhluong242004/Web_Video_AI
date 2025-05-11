@@ -81,19 +81,21 @@ export default function Home() {
     }
   };
 
-  // useEffect(() => {
-  //   if (script && script !== "" && script.trim() !== "") {
-  //     setScriptContent(script);
-  //     const splitScript = script.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
-  //     setScripts(splitScript);
-  //     setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
-  //     setRestart(true); // Đặt lại trạng thái restart
-  //     setMergedAudioUrl(null); // Đặt lại mergedAudioUrl khi script thay đổi
-  //   } else {
-  //     setScripts([]);
-  //   }
+  useEffect(() => {
+    if (!script) return;
+    if (typeof script === "string" && script.trim() === "") return;
+    if (script) {
+      setScriptContent(script);
+      const splitScript = script.split(/(?<=[.?!])\s+|\n+/).filter((s) => s.trim() !== "");
+      setScripts(splitScript);
+      setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
+      setRestart(true); // Đặt lại trạng thái restart
+      setMergedAudioUrl(null); // Đặt lại mergedAudioUrl khi script thay đổi
+    } else {
+      setScripts([]);
+    }
 
-  // }, [script]);
+  }, [script]);
 
   useEffect(() => {
     const allAudiosExist =
