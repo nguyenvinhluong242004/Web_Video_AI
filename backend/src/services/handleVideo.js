@@ -43,7 +43,7 @@ async function createVideoSegments(images, scripts, durations) {
     const output = `clip_${index}.mp4`;
     const { width, height } = { width: 600, height: 800 };
     const sValue = `${width}x${height}`;
-    const fps = 60;
+    const fps = 30;
     const dFrames = Math.ceil(duration * fps);
     const textHeight = calculateTextHeight(text, 20, 10);
     const yPosition = height - textHeight - 30;
@@ -59,6 +59,7 @@ async function createVideoSegments(images, scripts, durations) {
           drawtext=text='${text}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10`,
           `-t ${duration}`,
           '-pix_fmt yuv420p',
+          '-crf 28'
         ])
         .noAudio()
         .save(output)
@@ -98,7 +99,15 @@ async function mergeWithAudio(videoPath, audioPath, outputPath = 'final_output.m
     ffmpeg()
       .input(videoPath)
       .input(audioPath)
-      .outputOptions(['-c:v copy', '-c:a aac', '-shortest'])
+      .outputOptions([
+        // '-c:v copy', '-c:a aac', '-shortest',
+        '-c:v libx264',
+        '-preset veryfast',
+        '-crf 28',
+        '-c:a aac',
+        '-b:a 128k',
+        '-shortest'
+      ])
       .save(outputPath)
       .on('end', () => resolve(outputPath))
       .on('error', (err) => {
@@ -111,12 +120,27 @@ async function mergeWithAudio(videoPath, audioPath, outputPath = 'final_output.m
 async function createFullVideo(images, scripts, durations, audioPath, outputPath = 'final_output.mp4') {
   try {
     if (isRender) {
-      // Chạy tuần tự trên Render
       console.log('🔹 Đang tạo video từng clip một... (Render)');
+      const clips = [];
       for (let i = 0; i < images.length; i++) {
         const clip = await createVideoSegments([images[i]], [scripts[i]], [durations[i]]);
+        clips.push(clip[0]);
         console.log(`Clip ${i} đã hoàn thành`);
       }
+
+      console.log('🔹 Đang nối các clip lại... (Render)');
+      const mergedVideo = await concatVideoSegments(clips);
+
+      console.log('🔹 Đang ghép với âm thanh... (Render)');
+      const finalOutput = await mergeWithAudio(mergedVideo, audioPath, outputPath);
+
+      console.log('✅ Video đã hoàn thành:', finalOutput);
+      clips.forEach(file => fs.unlinkSync(file));
+      fs.unlinkSync(mergedVideo);
+      fs.unlinkSync('video_list.txt');
+
+      return finalOutput;
+
     } else {
       // Chạy song song ở local
       console.log('🔹 Đang tạo từng clip từ ảnh... (Local)');
