@@ -49,7 +49,7 @@ export default function ContentMain({ script, setScript, restart, scripts, setSc
                                         key={index}
                                         onClick={() => setActiveIndex(index)}
                                         className={`px-4 py-2 w-full md:w-[100px] h-full rounded-t ${activeIndex === index ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                                        style={{borderRadius: "5px 0 0 5px"}}
+                                        style={{ borderRadius: "5px 0 0 5px" }}
                                     >
                                         Text {index + 1}
                                     </button>
@@ -66,26 +66,26 @@ export default function ContentMain({ script, setScript, restart, scripts, setSc
                         <Main idx={index} restart={restart} script={script} scripts={scripts} setScripts={setScripts} url={audioUrls[index]} setAudioUrlAtIndex={setAudioUrlAtIndex} />
                     </div>
                 ))}
-                {scripts.length == 0 && 
+                {scripts.length == 0 &&
                     <div>
                         <Main idx={-1} restart={restart} script={""} scripts={scripts} setScripts={setScripts} url={""} setAudioUrlAtIndex={setAudioUrlAtIndex} />
                     </div>
                 }
             </div>
             {mergedAudioUrl && (
-            <div className="mt-3 md:mt-3 flex flex-col md:flex-row md:items-center justify-center gap-2">
-              <div>
+                <div className="mt-3 md:mt-3 flex flex-col md:flex-row md:items-center justify-center gap-2">
+                    <div>
 
-                <h2 className="text-xl font-bold text-gray-800 pr-15">🎧 Audio đã được ghép nối: </h2>
-              </div>
+                        <h2 className="text-xl font-bold text-gray-800 pr-15">🎧 Audio đã được ghép nối: </h2>
+                    </div>
 
-              <div>
-                <audio controls src={mergedAudioUrl}></audio>
-              </div>
-              <div>
-                <a href={mergedAudioUrl} download="merged_audio.wav" className="text-blue-500 ml-2 text-sm rounded-xl border-1 p-1 hover:bg-gray-200">Tải xuống</a></div>
-            </div>
-          )}
+                    <div>
+                        <audio controls src={mergedAudioUrl}></audio>
+                    </div>
+                    <div>
+                        <a href={mergedAudioUrl} download="merged_audio.wav" className="text-blue-500 ml-2 text-sm rounded-xl border-1 p-1 hover:bg-gray-200">Tải xuống</a></div>
+                </div>
+            )}
         </div>
     );
 }

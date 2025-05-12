@@ -35,10 +35,16 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
     }, [restart]);
 
     const setText = (index: number, value: string) => {
-        const newScripts = [...scripts];
-        newScripts[index] = value; // Cập nhật text tại index tương ứng
-        setTextInput(value);
-        setScripts(newScripts);
+        if (idx >= 0) {
+            const newScripts = [...scripts];
+            newScripts[index] = value; // Cập nhật text tại index tương ứng
+            setTextInput(value);
+            setScripts(newScripts);
+        }
+        else {
+            setTextInput(value);
+        }
+
     };
 
     const handleSubmit = async () => {
@@ -67,7 +73,8 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
             const audioBlob = new Blob([response.data], { type: "audio/mpeg" });
             const url = URL.createObjectURL(audioBlob);
             setAudioUrl(url);
-            setAudioUrlAtIndex(idx, url);
+            if (idx >= 0)
+                setAudioUrlAtIndex(idx, url);
         } catch (error) {
             console.error("Error during API call:", error);
         }
@@ -76,12 +83,12 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
 
     return (
         <div className="w-full md:w-[500px] mx-auto rounded-xl text-black flex flex-col gap-4">
-            <div className="w-full max-w-xl">
+            <div className="w-full">
                 <div className="space-y-4  border-b pb-3">
                     <label className="block">
                         <span className="font-medium">Text {idx + 1}</span>
                         <textarea
-                            value={script}
+                            value={text}
                             onChange={(e) => setText(idx, e.target.value)}
                             placeholder="Nhập văn bản"
                             rows={4}
@@ -89,7 +96,7 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
                         />
                     </label>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3"> 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                         {/* h-[120px] md:h-full overflow-auto */}
                         <label className="block">
                             <span className="font-medium">Voice</span>

@@ -1,22 +1,49 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 interface MainProps {
-    script: string | null;
-    setScript: React.Dispatch<React.SetStateAction<string | null>>;
-    audio: string | null;
-    setAudio: React.Dispatch<React.SetStateAction<string | null>>;
+    idx: number;
+    restart: boolean;
+    script: string;
+    scripts: string[];
+    setScripts: React.Dispatch<React.SetStateAction<string[]>>;
+    url: string;
+    setAudioUrlAtIndex: (index: number, url: string) => void; // Hàm để cập nhật URL âm thanh tại index
 }
 
-export default function Main({ script, setScript, audio, setAudio }: MainProps) {
-    const [text, setText] = useState(script || "");
+export default function main({ idx, restart, script, scripts, setScripts, url, setAudioUrlAtIndex }: MainProps) {
+    const [text, setTextInput] = useState(script || "");
+    const [loaded, setLoaded] = useState(true);
     const [voice, setVoice] = useState("vi-VN-HoaiMyNeural (vi-VN, Female)");
     const [rate, setRate] = useState(0);
     const [num_lines, setNumLines] = useState(2);
     const [pitch, setPitch] = useState(0);
     const [loading, setLoading] = useState(false);
-    const [audioUrl, setAudioUrl] = useState<string | null>(audio);
+    const [audioUrl, setAudioUrl] = useState<string | null>(url);
+
+    useEffect(() => {
+        setTextInput(script);
+    }, [script]);
+
+    useEffect(() => {
+        if (restart && loaded) {
+            handleSubmit();
+        }
+    }, [restart]);
+
+    const setText = (index: number, value: string) => {
+        if (idx >= 0) {
+            const newScripts = [...scripts];
+            newScripts[index] = value; // Cập nhật text tại index tương ứng
+            setTextInput(value);
+            setScripts(newScripts);
+        }
+        else {
+            setTextInput(value);
+        }
+
+    };
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -38,32 +65,28 @@ export default function Main({ script, setScript, audio, setAudio }: MainProps) 
             const { audioUrl } = response.data;
             console.log("Audio URL:", audioUrl);
             setAudioUrl(audioUrl);
-            setAudio(audioUrl);
+            if (idx >= 0)
+                setAudioUrlAtIndex(idx, audioUrl);
+            setLoaded(false);
         } catch (error) {
             console.error("Error during API call:", error);
         }
         setLoading(false);
     };
 
-    const setTextConfig = (text: string) => {
-        setText(text);
-        setScript(text);
-    }
-
     return (
         <div>
-            <h1 className="text-2xl font-bold text-center text-gray-800">🗣️ Text to Speech</h1>
             <div className="mt-2 mx-auto p-0 rounded-xl text-black flex flex-col md:flex-row gap-5">
                 <div className="w-full">
 
-                    <div className="space-y-4">
+                    <div className="space-y-4 border-b pb-3">
                         <label className="block">
                             <span className="font-medium">Text</span>
                             <textarea
                                 value={text}
-                                onChange={(e) => setTextConfig(e.target.value)}
+                                onChange={(e) => setText(idx, e.target.value)}
                                 placeholder="Nhập văn bản"
-                                rows={12}
+                                rows={6}
                                 className="w-full md:w-[500px] mt-1 block rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             />
                         </label>
@@ -399,7 +422,7 @@ export default function Main({ script, setScript, audio, setAudio }: MainProps) 
                                 <option value="zu-ZA-ThembaNeural (zu-ZA, Male)">Zulu (South Africa) - Male</option>
                             </select>
                         </label>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 
                             <label className="block">
                                 <span className="font-medium">Rate</span>
@@ -457,15 +480,14 @@ export default function Main({ script, setScript, audio, setAudio }: MainProps) 
                         </div>
                     </div>
                 </div>
-
-                <div className="w-full max-w-sm">
-                    <h2 className="font-semibold text-lg mb-2">🎧 Kết quả</h2>
-                    {audioUrl && (
-                        <div className="text-center">
-                            <audio controls src={audioUrl} />
-                        </div>
-                    )}
-                </div>
+            </div>
+            <div className="mt-3 w-full flex flex-col sm:flex-row md:items-center justify-between h-[50px]">
+                <div><h1 className="font-bold text-2xl text-gray-800 w-[180px]">🎧 Kết quả:</h1></div>
+                {audioUrl && (
+                    <div className="text-center">
+                        <audio controls src={audioUrl} />
+                    </div>
+                )}
             </div>
         </div>
     );

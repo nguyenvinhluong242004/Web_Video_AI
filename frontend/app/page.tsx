@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import Script from "./(pages)/text-to-script/main";
 import Image from "./(pages)/text-to-image-v1/main";
 import ImageV2 from "./(pages)/text-to-image-v2/main";
-import Speed from "./(pages)/text-to-speed-v1/contentMain";
-import SpeedV2 from "./(pages)/text-to-speed-v2/main";
+import MainSpeed from "./(pages)/text-to-speed-v1/contentMain";
+import MainSpeedV2 from "./(pages)/text-to-speed-v2/contentMain";
 import mergeAudios from "./utils/mergeAudio";
 
 export default function Home() {
@@ -13,9 +13,17 @@ export default function Home() {
   const [scriptContent, setScriptContent] = useState<string | null>(null);
   const [prompt, setPrompt] = useState<string | null>("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...\n'Bỏ đi phần chú thích, ghi chú, giới thiệu, chỉ bao gồm mỗi đoạn văn chứa nội dung'");
   const [scripts, setScripts] = useState<string[]>([]);
+  const [promptImages, setPromptImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [imagesVer2, setImagesVer2] = useState<string[]>([]);
   const [audioUrls, setAudioUrls] = useState<string[]>([]);
   const [mergedAudioUrl, setMergedAudioUrl] = useState<string | null>(null);
   const [restart, setRestart] = useState(false);
+  const [restartImg, setRestartImg] = useState(false);
+  const [restartImgVer2, setRestartImgVer2] = useState(false);
+  const [audioUrlsVer2, setAudioUrlsVer2] = useState<string[]>([]);
+  const [mergedAudioUrlVer2, setMergedAudioUrlVer2] = useState<string | null>(null);
+  const [restartVer2, setRestartVer2] = useState(false);
   const [speedVersion, setSpeedVersion] = useState<"v1" | "v2">("v2");
   const [imageVersion, setImageVersion] = useState<"v1" | "v2">("v2");
   const [audio, setAudio] = useState<string | null>(null);
@@ -86,7 +94,9 @@ export default function Home() {
               </button>
             </div>
             {speedVersion === "v1" ? (
-              <Speed
+              <MainSpeed
+                script={scriptContent}
+                setScript={setScriptContent}
                 restart={restart}
                 scripts={scripts}
                 setScripts={setScripts}
@@ -95,11 +105,15 @@ export default function Home() {
                 mergedAudioUrl={mergedAudioUrl}
               />
             ) : (
-              <SpeedV2
+              <MainSpeedV2
                 script={scriptContent}
                 setScript={setScriptContent}
-                audio={audio}
-                setAudio={setAudio}
+                restart={restartVer2}
+                scripts={scripts}
+                setScripts={setScripts}
+                audioUrls={audioUrlsVer2}
+                setAudioUrls={setAudioUrlsVer2}
+                mergedAudioUrl={mergedAudioUrlVer2}
               />
             )}
           </div>
@@ -115,29 +129,55 @@ export default function Home() {
   const handleScriptDone = (text: string) => {
     if (text.trim() === "") return;
     setScripts([]);
-    setScriptContent(text);
     setScript(text);
 
-    let splitScript: string[];
+    const cleanTextOnly = text
+      .split(/\n+/)
+      .map((line) => {
+        const match = line.match(/^(.*)\s*\((.*)\)$/);
+        return match ? match[1].trim() : line.trim();
+      })
+      .join("\n\n"); // hoặc "\n" nếu bạn muốn đoạn ngắn
 
-    if (text.includes("\n")) {
-      splitScript = text
-        .split(/\n+/)
-        .map((s) => s.trim())
-        .filter((s) => s !== "");
-    } else {
-      splitScript = text
-        .replace(/([.?!])\s+/g, "$1|") // Thêm dấu phân cách tạm
-        .split("|")
-        .map((s) => s.trim())
-        .filter((s) => s !== "");
+    // Split các đoạn theo khoảng dòng trống
+    const splitScript = text
+      .split(/\n+/)
+      .map((s) => s.trim())
+      .filter((s) => s !== "");
+
+    const contentList: string[] = [];
+    const imageList: string[] = [];
+
+    for (const line of splitScript) {
+      const match = line.match(/^(.*)\s*\((.*)\)$/); // Tách đoạn văn và mô tả ảnh
+      if (match) {
+        const [_, content, imageDesc] = match;
+        if (content.trim() !== "" && imageDesc.trim() !== "") {
+          contentList.push(content.trim());
+          imageList.push(imageDesc.trim());
+        }
+      } else {
+        // Nếu không khớp (phòng trường hợp dữ liệu lỗi), vẫn đẩy vào scripts
+        contentList.push(line);
+        imageList.push(""); // Không có ảnh tương ứng
+      }
     }
 
-    setScripts(splitScript);
-    setAudioUrls(new Array(splitScript.length).fill("")); // Đặt giá trị mặc định cho audioUrls
-    setRestart(true); // Đặt lại trạng thái restart
-    setMergedAudioUrl(null); // Đặt lại mergedAudioUrl khi script thay đổi
-  }
+    setScriptContent(cleanTextOnly);
+    setScripts(contentList);
+    setPromptImages(imageList);
+    setAudioUrls(new Array(contentList.length).fill(""));
+    setAudioUrlsVer2(new Array(contentList.length).fill(""));
+    setRestart(true);
+    setRestartVer2(true);
+    setMergedAudioUrl(null);
+    setMergedAudioUrlVer2(null);
+
+    console.log(cleanTextOnly)
+    console.log(contentList)
+    console.log(imageList)
+  };
+
 
   useEffect(() => {
     const allAudiosExist =
@@ -151,12 +191,33 @@ export default function Home() {
           const mergedUrl = URL.createObjectURL(mergedBlob);
           setMergedAudioUrl(mergedUrl);
           setRestart(false);
+          console.log(mergedUrl);
         } catch (err) {
           console.error("Lỗi khi merge audio:", err);
         }
       })();
     }
   }, [audioUrls, scripts]);
+
+  useEffect(() => {
+    const allAudiosExist =
+      audioUrlsVer2.length === scripts.length &&
+      audioUrlsVer2.every(url => typeof url === "string" && url.trim() !== "");
+
+    if (scripts.length > 0 && allAudiosExist) {
+      (async () => {
+        try {
+          const mergedBlob = await mergeAudios(audioUrlsVer2);
+          const mergedUrl = URL.createObjectURL(mergedBlob);
+          setMergedAudioUrlVer2(mergedUrl);
+          setRestartVer2(false);
+          console.log(mergedUrl);
+        } catch (err) {
+          console.error("Lỗi khi merge audio:", err);
+        }
+      })();
+    }
+  }, [audioUrlsVer2, scripts]);
 
 
 
