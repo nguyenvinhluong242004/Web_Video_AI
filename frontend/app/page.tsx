@@ -1,11 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import Script from "./(pages)/text-to-script/main";
-import Image from "./(pages)/text-to-image-v1/main";
-import ImageV2 from "./(pages)/text-to-image-v2/main";
+import MainImage from "./(pages)/text-to-image-v1/contentMain";
+import MainImageV2 from "./(pages)/text-to-image-v2/contentMain";
 import MainSpeed from "./(pages)/text-to-speed-v1/contentMain";
 import MainSpeedV2 from "./(pages)/text-to-speed-v2/contentMain";
 import mergeAudios from "./utils/mergeAudio";
+import MainVideo from "./(pages)/handle-video/main";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("script");
@@ -14,7 +15,10 @@ export default function Home() {
   const [prompt, setPrompt] = useState<string | null>("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...");
   const [scripts, setScripts] = useState<string[]>([]);
   const [promptImages, setPromptImages] = useState<string[]>([]);
-  const [images, setImages] = useState<string[]>([]);
+  const initialImages: string[][] = [
+    [],
+  ];
+  const [images, setImages] = useState<string[][]>(initialImages);
   const [imagesVer2, setImagesVer2] = useState<string[]>([]);
   const [audioUrls, setAudioUrls] = useState<string[]>([]);
   const [mergedAudioUrl, setMergedAudioUrl] = useState<string | null>(null);
@@ -27,6 +31,8 @@ export default function Home() {
   const [speedVersion, setSpeedVersion] = useState<"v1" | "v2">("v2");
   const [imageVersion, setImageVersion] = useState<"v1" | "v2">("v2");
   const [audio, setAudio] = useState<string | null>(null);
+  const [allImages, setAllImages] = useState<string[]>([]);
+  const [restartVideo, setRestartVideo] = useState(false);
 
 
   const tabs = [
@@ -64,9 +70,24 @@ export default function Home() {
               </button>
             </div>
             {imageVersion === "v1" ? (
-              <Image />
+              <MainImage
+                promptImages={promptImages}
+                images={images}
+                setImages={setImages}
+                restartImg={restartImg}
+                allImages={allImages}
+                setAllImages={setAllImages}
+              />
             ) : (
-              <ImageV2 />
+              <MainImageV2
+                promptImages={promptImages}
+                setPromptImages={setPromptImages}
+                images={imagesVer2}
+                setImages={setImagesVer2}
+                restartImg={restartImgVer2}
+                allImages={allImages}
+                setAllImages={setAllImages}
+              />
             )}
           </div>
         );
@@ -120,7 +141,17 @@ export default function Home() {
         );
 
       case "video":
-        return <h1 className="text-2xl font-bold text-black">🎞️ Giao diện tạo video ở đây</h1>;
+        return <MainVideo
+          promptImages={promptImages}
+          images={images}
+          setImages={setImages}
+          restart={restartVideo}
+          allImages={allImages}
+          setAllImages={setAllImages}
+          mergeAudio={mergedAudioUrlVer2}
+          scripts={scripts}
+
+        />;
       default:
         return null;
     }
@@ -131,15 +162,6 @@ export default function Home() {
     setScripts([]);
     setScript(text);
 
-    const cleanTextOnly = text
-      .split(/\n+/)
-      .map((line) => {
-        const match = line.match(/^(.*)\s*\((.*)\)$/);
-        return match ? match[1].trim() : line.trim();
-      })
-      .join("\n\n"); // hoặc "\n" nếu bạn muốn đoạn ngắn
-
-    // Split các đoạn theo khoảng dòng trống
     const splitScript = text
       .split(/\n+/)
       .map((s) => s.trim())
@@ -148,20 +170,42 @@ export default function Home() {
     const contentList: string[] = [];
     const imageList: string[] = [];
 
-    for (const line of splitScript) {
-      const match = line.match(/^(.*)\s*\((.*)\)$/); // Tách đoạn văn và mô tả ảnh
-      if (match) {
-        const [_, content, imageDesc] = match;
-        if (content.trim() !== "" && imageDesc.trim() !== "") {
+    for (let i = 0; i < splitScript.length; i++) {
+      const line = splitScript[i];
+
+      // Trường hợp 1: prompt ở cuối dòng
+      const matchInline = line.match(/^(.*)\s*\(([^)]*)\)\s*$/);
+      if (matchInline) {
+        const [_, content, prompt] = matchInline;
+
+        if (content.trim() !== "") {
           contentList.push(content.trim());
-          imageList.push(imageDesc.trim());
+          imageList.push(prompt.trim());
+          continue;
         }
-      } else {
-        // Nếu không khớp (phòng trường hợp dữ liệu lỗi), vẫn đẩy vào scripts
-        contentList.push(line);
-        imageList.push(""); // Không có ảnh tương ứng
+      }
+
+      // Trường hợp 2: prompt ở dòng sau
+      if (i + 1 < splitScript.length) {
+        const nextLine = splitScript[i + 1];
+        const matchNextLine = nextLine.match(/^\(([^)]*)\)$/);
+        if (matchNextLine && line.trim() !== "") {
+          contentList.push(line.trim());
+          imageList.push(matchNextLine[1].trim());
+          i++; // bỏ qua dòng tiếp theo vì đã xử lý rồi
+          continue;
+        }
+      }
+
+      // Không có prompt
+      if (line.trim() !== "") {
+        contentList.push(line.trim());
+        imageList.push("Default: a person walking on a mountain trail, looking out at a beautiful sunrise");
       }
     }
+
+    // Xử lý cleanTextOnly (xóa prompt ra khỏi văn bản gốc)
+    const cleanTextOnly = contentList.join("\n\n");
 
     setScriptContent(cleanTextOnly);
     setScripts(contentList);
@@ -170,12 +214,17 @@ export default function Home() {
     setAudioUrlsVer2(new Array(contentList.length).fill(""));
     setRestart(true);
     setRestartVer2(true);
+    setRestartImg(true);
+    setRestartImgVer2(true);
     setMergedAudioUrl(null);
     setMergedAudioUrlVer2(null);
+    setImages(initialImages);
+    setImagesVer2([]);
+    setAllImages([]);
 
-    console.log(cleanTextOnly)
-    console.log(contentList)
-    console.log(imageList)
+    console.log(cleanTextOnly);
+    console.log(contentList);
+    console.log(imageList);
   };
 
 
@@ -219,6 +268,18 @@ export default function Home() {
     }
   }, [audioUrlsVer2, scripts]);
 
+  useEffect(() => {
+    const allImagesExist =
+      imagesVer2.length === scripts.length &&
+      imagesVer2.every(url => typeof url === "string" && url.trim() !== "");
+
+    if (scripts.length > 0 && allImagesExist) {
+      // Ghép mảng hoặc xử lý ảnh (tuỳ nhu cầu)
+      setAllImages([...imagesVer2]); // hoặc xử lý thêm nếu cần
+      console.log("Đã merge ảnh:", imagesVer2);
+      setRestartImgVer2(false);
+    }
+  }, [imagesVer2]);
 
 
   return (

@@ -3,8 +3,10 @@ import { ttsVer2Route } from './ttsVer2Route.js';
 import { scriptRoute } from './scriptRoute.js';
 import { imageRoute } from './imageRoute.js';
 import { imageVer2Route } from './imageVer2Route.js';
+import { handleVideoRoute } from './handleVideoRoute.js';
 
 function route(app) {
+    app.use('/create-video', handleVideoRoute);
     app.use('/image', imageRoute);
     app.use('/image-v2', imageVer2Route);
     app.use('/tts', ttsRoute);

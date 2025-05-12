@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 interface MainProps {
     idx: number;
@@ -13,6 +13,8 @@ interface MainProps {
 
 export default function main({ idx, restart, script, scripts, setScripts, url, setAudioUrlAtIndex }: MainProps) {
     const [text, setTextInput] = useState(script);
+    const calledRef = useRef(false);
+    const [loaded, setLoaded] = useState(true);
     const [vcn, setVcn] = useState("xiaoyun");
     const [speed, setSpeed] = useState(56);
     const [volume, setVolume] = useState(50);
@@ -29,8 +31,11 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
     }, [script]);
 
     useEffect(() => {
-        if (restart) {
+        if (restart && loaded && !calledRef.current) {
+            calledRef.current = true;
+            setLoaded(false);
             handleSubmit();
+            console.log("calllll")
         }
     }, [restart]);
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
 interface MainProps {
@@ -14,6 +14,7 @@ interface MainProps {
 
 export default function main({ idx, restart, script, scripts, setScripts, url, setAudioUrlAtIndex }: MainProps) {
     const [text, setTextInput] = useState(script || "");
+    const calledRef = useRef(false);
     const [loaded, setLoaded] = useState(true);
     const [voice, setVoice] = useState("vi-VN-HoaiMyNeural (vi-VN, Female)");
     const [rate, setRate] = useState(0);
@@ -27,8 +28,11 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
     }, [script]);
 
     useEffect(() => {
-        if (restart && loaded) {
+        if (restart && loaded && !calledRef.current) {
+            calledRef.current = true;
+            setLoaded(false);
             handleSubmit();
+            console.log("calllll")
         }
     }, [restart]);
 
@@ -67,7 +71,6 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
             setAudioUrl(audioUrl);
             if (idx >= 0)
                 setAudioUrlAtIndex(idx, audioUrl);
-            setLoaded(false);
         } catch (error) {
             console.error("Error during API call:", error);
         }
