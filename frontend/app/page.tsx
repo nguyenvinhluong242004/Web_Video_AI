@@ -11,7 +11,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState("script");
   const [script, setScript] = useState<string | null>(null);
   const [scriptContent, setScriptContent] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState<string | null>("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...\n'Bỏ đi phần chú thích, ghi chú, giới thiệu, chỉ bao gồm mỗi đoạn văn chứa nội dung'");
+  const [prompt, setPrompt] = useState<string | null>("Viết nội dung video cảm động, truyền cảm hứng về một khía cạnh của cuộc sống – hành trình đi tìm hạnh phúc...");
   const [scripts, setScripts] = useState<string[]>([]);
   const [promptImages, setPromptImages] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
