@@ -18,7 +18,7 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
     const [isNegative, setIsNegative] = useState("(deformed, distorted, disfigured), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, misspellings, typos");
     const [model, setModel] = useState("FLUX.1 [Schnell]");
     const [customLora, setCustomLora] = useState("");
-    const [steps, setSteps] = useState(1);
+    const [steps, setSteps] = useState(7);
     const [scale, setScale] = useState(7); // cfg_scale
     const [sampler, setSampler] = useState("DPM++ 2M Karras");
     const [seed, setSeed] = useState(-1);

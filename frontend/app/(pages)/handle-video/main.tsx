@@ -1,166 +1,218 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 interface ContentMainProps {
-  promptImages: string[];
-  images: string[][];
-  setImages: React.Dispatch<React.SetStateAction<string[][]>>;
-  restart: boolean;
-  allImages: string[];
-  setAllImages: React.Dispatch<React.SetStateAction<string[]>>;
-  mergeAudio: string | null;  // đường dẫn tới file audio
-  scripts: string[];   // các script cho từng clip
+    promptImages: string[];
+    images: string[][];
+    setImages: React.Dispatch<React.SetStateAction<string[][]>>;
+    restart: boolean;
+    allImages: string[];
+    setAllImages: React.Dispatch<React.SetStateAction<string[]>>;
+    mergeAudio: string | null;  // đường dẫn tới file audio
+    scripts: string[];   // các script cho từng clip
+    audioUrlsVer2: string[];
+    script: string | null;
 }
 
 export default function Main({
-  promptImages,
-  images,
-  setImages,
-  restart,
-  allImages,
-  setAllImages,
-  mergeAudio,
-  scripts,
+    promptImages,
+    images,
+    setImages,
+    restart,
+    allImages,
+    setAllImages,
+    mergeAudio,
+    scripts,
+    audioUrlsVer2,
+    script
 }: ContentMainProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [videoDuration, setVideoDuration] = useState<number[]>([]); // thời gian của từng clip
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [outputVideo, setOutputVideo] = useState<string | null>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [videoDuration, setVideoDuration] = useState<number[]>([]); // thời gian của từng clip
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [outputVideo, setOutputVideo] = useState<string>("");
 
-  const toggleSelectImage = (imgUrl: string) => {
-    setAllImages((prev) => {
-      if (prev.includes(imgUrl)) {
-        return prev.filter((url) => url !== imgUrl);
-      } else {
-        return [...prev, imgUrl];
-      }
-    });
-  };
+    const toggleSelectImage = (imgUrl: string) => {
+        setAllImages((prev) => {
+            if (prev.includes(imgUrl)) {
+                return prev.filter((url) => url !== imgUrl);
+            } else {
+                return [...prev, imgUrl];
+            }
+        });
+    };
 
-  const handleCreateVideo = async () => {
-    if (allImages.length === 0) {
-      alert("Vui lòng chọn ít nhất 1 ảnh!");
-      return;
-    }
+    useEffect(() => {
+        console.log('Video URL:', outputVideo);
+        return () => {
+            if (outputVideo !== "") {
+                console.log('Video URL:', outputVideo);
+                URL.revokeObjectURL(outputVideo);  // Giải phóng URL blob khi không còn sử dụng
+            }
+        };
+    }, [outputVideo]);
 
-    setIsProcessing(true);
+    const handleCreateVideo = async () => {
+        if (allImages.length === 0) {
+            alert("Vui lòng chọn ít nhất 1 ảnh!");
+            return;
+        }
 
-    // Tính duration cho từng ảnh (có thể là 5 giây mặc định hoặc tùy chỉnh)
-    const durations = new Array(allImages.length).fill(5);
+        setIsProcessing(true);
 
-    try {
-      // Gọi backend API để tạo video (cần gửi `images`, `scripts`, `durations`, và `mergeAudio`)
-      const response = await fetch("/api/create-video", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          images: allImages,
-          scripts,
-          durations,
-          audio: mergeAudio,
-        }),
-      });
+        // Khởi tạo mảng durations với kiểu number[]
+        const durations: number[] = [];
+        setOutputVideo("");
 
-      const data = await response.json();
+        try {
+            // Fetch thời gian cho từng audio
+            for (let i = 0; i < audioUrlsVer2.length; i++) {
+                const audioUrl = audioUrlsVer2[i];
+                const res = await fetch(audioUrl);
+                const audioBlob = await res.blob();
+                const audioUrlObject = URL.createObjectURL(audioBlob);
+                const audio = new Audio(audioUrlObject);
 
-      if (data.success) {
-        setOutputVideo(data.outputVideo); // Video output path
-      } else {
-        alert("Lỗi khi tạo video");
-      }
-    } catch (error) {
-      console.error("Error creating video:", error);
-      alert("Đã xảy ra lỗi khi tạo video!");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+                // Wait for audio metadata to load and get the duration
+                await new Promise<void>((resolve, reject) => {
+                    audio.onloadedmetadata = () => {
+                        durations.push(audio.duration); // thời gian của mỗi audio ứng với mỗi ảnh
+                        resolve();
+                    };
+                    audio.onerror = reject; // handle error if audio loading fails
+                });
+            }
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-center mb-3 text-gray-800">🖼️ Image Viewer</h1>
+            // Kiểm tra số lượng audio và hình ảnh có khớp không
+            if (durations.length !== allImages.length) {
+                alert("Số lượng ảnh không khớp với số lượng âm thanh");
+                return;
+            }
 
-      <div className="flex flex-col md:flex-row border-b-2 pb-12 md:pb-3 border-gray-600">
-        <div className="flex flex-col space-x-2 pb-1 mb-0 text-black gap-1 md:mr-3">
-          <span className="text-medium mb-5">List Content: {images.length}</span>
+            const formData = new FormData();
 
-          <div className="w-full max-h-[120px] md:max-h-[500px] overflow-y-auto custom-scroll flex flex-col space-x-2 pb-2 mb-3 text-black gap-1"
-               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-            {images.map((_, index) => (
-              <div className="w-full md:w-[500px] text-center flex bg-gray-300 rounded-md" key={index}>
-                <button
-                  onClick={() => setActiveIndex(index)}
-                  className={`px-4 py-2 w-full md:w-[100px] h-full rounded-t ${activeIndex === index ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                  style={{ borderRadius: "5px 0 0 5px" }}
-                >
-                  Content {index + 1}
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
+            try {
+                // Convert từng ảnh sang File và append vào formData
+                for (let i = 0; i < allImages.length; i++) {
+                    const imgUrl = allImages[i];
+                    const res = await fetch(imgUrl); // fetch base64 hoặc blob url
+                    const blob = await res.blob();
+                    const file = new File([blob], `image${i}.jpg`, { type: blob.type });
 
-        <div className="flex flex-col gap-4">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">📌 Prompt: </h2>
-            <p className="bg-yellow-100 text-black p-2 rounded-md">{promptImages[activeIndex]}</p>
-          </div>
+                    formData.append("images", file); // name 'images' phải trùng với multer
+                }
 
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">🖼️ Ảnh cho Content {activeIndex + 1}</h2>
-            <div className={`grid ${images[activeIndex] ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1'} gap-3`}>
-              {images[activeIndex].map((img, i) => (
-                <div key={i} className="relative group cursor-pointer" onClick={() => toggleSelectImage(img)}>
-                  <img
-                    src={img}
-                    alt={`image-${activeIndex}-${i}`}
-                    className={`w-full h-32 object-cover rounded-md border-2 ${allImages.includes(img) ? "border-blue-500" : "border-gray-300"}`}
-                  />
-                  {allImages.includes(img) && (
-                    <div className="absolute top-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded">Selected</div>
-                  )}
+                formData.append("scripts", JSON.stringify(scripts));
+                formData.append("durations", JSON.stringify(durations));
+
+                // Nếu mergeAudio là base64 hoặc blob url thì cũng phải fetch rồi append file
+                if (mergeAudio) {
+                    const res = await fetch(mergeAudio);
+                    const audioBlob = await res.blob();
+                    const audioFile = new File([audioBlob], "audio.mp3", { type: audioBlob.type });
+
+                    formData.append("audio", audioFile);
+                }
+
+                const response = await axios.post(
+                    `${process.env.NEXT_PUBLIC_API_URL}/create-video`,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                        responseType: 'blob',
+                        maxContentLength: Infinity,
+                        maxBodyLength: Infinity,
+                    }
+                );
+
+                console.log(response);  // Kiểm tra dữ liệu trả về từ server
+                const videoBlob = new Blob([response.data], { type: "video/mp4" });  // Kiểm tra xem videoBlob có hợp lệ không
+                if (videoBlob instanceof Blob) {
+                    console.log('Blob is valid', videoBlob);
+                    const videoUrl = URL.createObjectURL(videoBlob);  // Tạo URL từ blob
+
+                    // // Tạo liên kết để tải video
+                    // const a = document.createElement('a');
+                    // a.href = videoUrl;
+                    // a.download = 'output_video.mp4';  // Tên file khi tải về
+                    // document.body.appendChild(a);
+                    // a.click();
+                    // a.remove();
+                    // window.URL.revokeObjectURL(videoUrl);  // Giải phóng bộ nhớ
+
+                    setOutputVideo(videoUrl);
+                    console.log('Video URL:', videoUrl);  // Kiểm tra URL video
+                } else {
+                    console.error('Received data is not a valid blob');
+                }
+            } catch (error) {
+                console.error("Lỗi khi tạo video:", error);
+                alert("Đã xảy ra lỗi khi tạo video!");
+            } finally {
+                setIsProcessing(false);
+            }
+        } catch (error) {
+            console.error("Lỗi khi xử lý thời gian âm thanh:", error);
+            alert("Đã xảy ra lỗi khi xử lý thời gian âm thanh!");
+            setIsProcessing(false);
+        }
+    };
+
+    return (
+        <div className="text-black">
+            <h1 className="text-2xl font-bold text-center mb-3 text-gray-800">🖼️ Image Viewer</h1>
+            <div className="flex flex-col md:flex-row">
+                <div>
+                    <h3 className="text-xl font-bold">Tiêu đề video</h3>
+                    <div className="flex flex-col md:flex-row border-b-2 pb-12 md:pb-3 border-gray-600">
+
+                        {script &&
+                            <div className="border-1 p-2 rounded-md text-sm mt-4">
+                                {script}
+                            </div>
+                        }
+                    </div>
+
+                    {allImages.length > 0 && (
+                        <div className="mt-3">
+                            <h2 className="text-lg font-bold text-green-700 mb-2">🎬 Ảnh đã chọn để làm video: ({allImages.length})</h2>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {allImages.map((img, i) => (
+                                    <img
+                                        key={i}
+                                        src={img}
+                                        alt={`selected-${i}`}
+                                        className="w-full h-full object-cover rounded-md border border-green-500"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
-              ))}
+                <div className="mt-4 md:mt-0 text-black w-[360px] ml-5">
+                    <div className="flex justify-between items-center w-[360px]">
+
+                        <h3 className="text-xl font-bold">Video đã tạo</h3>
+                        <div className="text-black mt-0">
+                            {isProcessing ? (
+                                <button disabled className=" bg-gray-300 p-3 pt-1 pb-1 text-gray-400 rounded">Đang xử lý...</button>
+                            ) : (
+                                <button onClick={handleCreateVideo} className=" bg-blue-500 text-white p-3 pt-1 pb-1 rounded cursor-pointer">Tạo video</button>
+                            )}
+                        </div>
+                    </div>
+                    {outputVideo !== "" && (
+                        <div className="mt-2">
+                            <video className="rounded-md w-[360px]" width="100%" controls>
+                                <source src={outputVideo} type="video/mp4" />
+                                Trình duyệt của bạn không hỗ trợ video.
+                            </video>
+                        </div>
+                    )}
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-
-      {allImages.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-lg font-bold text-green-700 mb-2">🎬 Ảnh đã chọn để làm video: ({allImages.length})</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {allImages.map((img, i) => (
-              <img
-                key={i}
-                src={img}
-                alt={`selected-${i}`}
-                className="w-full h-full object-cover rounded-md border border-green-500"
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="mt-6">
-        {isProcessing ? (
-          <button disabled className="px-4 py-2 bg-gray-300 rounded">Đang xử lý...</button>
-        ) : (
-          <button onClick={handleCreateVideo} className="px-4 py-2 bg-blue-500 text-white rounded">Tạo video</button>
-        )}
-
-        {outputVideo && (
-          <div className="mt-4">
-            <h2 className="text-lg font-bold">Video đã tạo</h2>
-            <video width="100%" controls>
-              <source src={outputVideo} type="video/mp4" />
-              Trình duyệt của bạn không hỗ trợ video.
-            </video>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+    );
 }

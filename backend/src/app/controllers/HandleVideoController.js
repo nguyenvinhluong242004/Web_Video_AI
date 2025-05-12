@@ -2,29 +2,44 @@ import { createFullVideo } from '../../services/handleVideo.js';
 import fs from 'fs';
 
 const handleVideoController = async (req, res) => {
-    try {
-        const { scripts, durations, audioPath } = req.body;
-        const images = req.files.map(file => file.path); // Lấy đường dẫn đến các ảnh đã upload
+  try {
+    const images = req.files['images']?.map(file => file.path) || [];
+    const audioFile = req.files['audio']?.[0];
+    const audioPath = audioFile ? audioFile.path : null;
 
-        console.log('🔹 Đang tạo video...');
+    const scripts = JSON.parse(req.body.scripts || '[]');
+    const durations = JSON.parse(req.body.durations || '[]');
 
-        // Gọi hàm createFullVideo để thực hiện toàn bộ quá trình
-        const finalVideo = await createFullVideo(images, scripts, durations, audioPath);
+    console.log('📦 Số ảnh:', images.length);
+    console.log('🎧 Audio:', audioPath);
+    console.log('📝 Scripts:', scripts);
+    console.log('⏱️ Durations:', durations);
 
-        // Trả video cho người dùng
-        res.download(finalVideo, 'output_video.mp4', (err) => {
-            if (err) {
-                console.error('❌ Lỗi khi tải video:', err);
-                res.status(500).json({ error: 'Có lỗi xảy ra khi tải video', details: err.message });
-            } else {
-                // Xóa các file tạm sau khi tải về
-                fs.unlinkSync(finalVideo);
-            }
-        });
-    } catch (err) {
-        console.error('❌ Lỗi tạo video:', err);
-        res.status(500).json({ error: 'Có lỗi xảy ra khi tạo video', details: err.message });
-    }
+    const finalVideo = await createFullVideo(images, scripts, durations, audioPath);
+
+    console.log('✅ Video đã hoàn thành:', finalVideo);
+    console.log('🔄 Đang gửi video về client...');
+
+    res.download(finalVideo, 'output_video.mp4', (err) => {
+      // Xoá file tạm sau khi gửi xong
+      try {
+        fs.unlinkSync(finalVideo);
+        images.forEach(img => fs.unlinkSync(img));
+        if (audioPath) fs.unlinkSync(audioPath);
+      } catch (e) {
+        console.warn('⚠️ Lỗi khi xoá tệp tạm:', e.message);
+      }
+
+      if (err) {
+        console.error('❌ Lỗi khi tải video:', err);
+        res.status(500).json({ error: 'Có lỗi khi gửi video' });
+      }
+    });
+
+  } catch (err) {
+    console.error('❌ Lỗi tạo video:', err);
+    res.status(500).json({ error: 'Có lỗi xảy ra', details: err.message });
+  }
 };
 
 export { handleVideoController };

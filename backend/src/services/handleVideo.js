@@ -1,16 +1,57 @@
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import ffmpeg from 'fluent-ffmpeg';
+import sizeOf from 'image-size';
 import fs from 'fs';
 import path from 'path';
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
-// Tạo clip từ ảnh + text
+function wrapText(text, maxWidth = 600 + 460, fontSize = 20) {
+  const words = text.split(' ');
+  let lines = [];
+  let currentLine = '';
+
+  // Giả lập wrap text: Chia từ thành dòng không vượt quá maxWidth
+  words.forEach(word => {
+    if ((currentLine + ' ' + word).length * fontSize <= maxWidth) {
+      currentLine += ' ' + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  });
+  if (currentLine) lines.push(currentLine);
+
+  return lines.join('\n');
+}
+
+// Tính chiều cao của text
+function calculateTextHeight(text, fontSize = 20, lineSpacing = 10) {
+  const lines = text.split('\n').length;  // Số dòng
+  const textHeight = lines * fontSize + (lines - 1) * lineSpacing;  // Tổng chiều cao (tính cả khoảng cách giữa các dòng)
+  return textHeight;
+}
+
 async function createVideoSegments(images, scripts, durations) {
   const promises = images.map((image, index) => {
     const duration = durations[index];
-    const text = scripts[index].replace(/:/g, '\\:');
+    const rawText = scripts[index];
+    const text = wrapText(rawText).replace(/:/g, '\\:');  // Tự động xuống dòng và thay dấu ":" bằng "\:"
+
     const output = `clip_${index}.mp4`;
+
+    // Lấy kích thước ảnh
+    const { width, height } = { width: 600, height: 800 };
+
+    const sValue = `${width}x${height}`;
+    const fps = 60;
+    const dFrames = Math.ceil(duration * fps);
+
+    // Tính chiều cao của text
+    const textHeight = calculateTextHeight(text, 20, 10);  // Giả sử fontsize là 20, lineSpacing là 10
+
+    // Xác định vị trí của text trên video
+    const yPosition = height - textHeight - 30;  // Cách đáy 30px
 
     return new Promise((resolve, reject) => {
       ffmpeg()
@@ -19,9 +60,17 @@ async function createVideoSegments(images, scripts, durations) {
         .videoCodec('libx264')
         .outputOptions([
           '-vf',
-          `drawtext=text='${text}':fontsize=32:fontcolor=white:x=(w-text_w)/2:y=h-100:box=1:boxcolor=black@0.5:boxborderw=10`,
-          `-t ${duration}`
+          `scale=2400:-1,zoompan=z='min(zoom+0.0005,1.5)':x='floor(iw/2-(iw/zoom/2))':y='floor(ih/2-(ih/zoom/2))':d=${dFrames}:s=${sValue}:fps=${fps},
+          drawtext=text='${text}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10`,
+          `-t ${duration}`,
+          '-pix_fmt yuv420p',
         ])
+        // .outputOptions([
+        //   '-vf',
+        //   `scale='2400:trunc(ih*2400/iw/2)*2',fade=t=in:st=0:d=1,drawtext=text='${text.replace(/:/g, '\\:').replace(/'/g, "\\'")}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10`,
+        //   `-t ${duration}`,
+        //   '-pix_fmt yuv420p',
+        // ])
         .noAudio()
         .save(output)
         .on('end', () => resolve(output))
@@ -34,6 +83,8 @@ async function createVideoSegments(images, scripts, durations) {
 
   return Promise.all(promises);
 }
+
+
 
 // Nối các clip lại thành một video
 async function concatVideoSegments(videoPaths) {

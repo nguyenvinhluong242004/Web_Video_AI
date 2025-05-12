@@ -150,7 +150,8 @@ export default function Home() {
           setAllImages={setAllImages}
           mergeAudio={mergedAudioUrlVer2}
           scripts={scripts}
-
+          audioUrlsVer2={audioUrlsVer2}
+          script={scriptContent}
         />;
       default:
         return null;

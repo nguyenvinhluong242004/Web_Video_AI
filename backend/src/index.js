@@ -34,7 +34,8 @@ app.use(bodyParser.json());
 import route from './app/routes/index.js'; // Thay đổi đường dẫn nếu cần
 
 app.use(morgan('combined')); // Cấu hình ghi log HTTP requests
-app.use(express.json()); // Xử lý dữ liệu JSON từ yêu cầu HTTP
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Kiểm tra xem .env có được load thành công không
 console.log('Environment variables loaded:');
