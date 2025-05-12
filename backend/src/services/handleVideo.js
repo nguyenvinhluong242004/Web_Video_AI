@@ -3,15 +3,19 @@ import ffmpeg from 'fluent-ffmpeg';
 import sizeOf from 'image-size';
 import fs from 'fs';
 import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();  // Nạp biến môi trường từ file .env
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+
+const isRender = process.env.ENV === 'render';  // Kiểm tra xem có phải chạy trên Render không
 
 function wrapText(text, maxWidth = 600 + 460, fontSize = 20) {
   const words = text.split(' ');
   let lines = [];
   let currentLine = '';
 
-  // Giả lập wrap text: Chia từ thành dòng không vượt quá maxWidth
   words.forEach(word => {
     if ((currentLine + ' ' + word).length * fontSize <= maxWidth) {
       currentLine += ' ' + word;
@@ -25,10 +29,9 @@ function wrapText(text, maxWidth = 600 + 460, fontSize = 20) {
   return lines.join('\n');
 }
 
-// Tính chiều cao của text
 function calculateTextHeight(text, fontSize = 20, lineSpacing = 10) {
-  const lines = text.split('\n').length;  // Số dòng
-  const textHeight = lines * fontSize + (lines - 1) * lineSpacing;  // Tổng chiều cao (tính cả khoảng cách giữa các dòng)
+  const lines = text.split('\n').length;
+  const textHeight = lines * fontSize + (lines - 1) * lineSpacing;
   return textHeight;
 }
 
@@ -36,22 +39,14 @@ async function createVideoSegments(images, scripts, durations) {
   const promises = images.map((image, index) => {
     const duration = durations[index];
     const rawText = scripts[index];
-    const text = wrapText(rawText).replace(/:/g, '\\:');  // Tự động xuống dòng và thay dấu ":" bằng "\:"
-
+    const text = wrapText(rawText).replace(/:/g, '\\:');
     const output = `clip_${index}.mp4`;
-
-    // Lấy kích thước ảnh
     const { width, height } = { width: 600, height: 800 };
-
     const sValue = `${width}x${height}`;
     const fps = 60;
     const dFrames = Math.ceil(duration * fps);
-
-    // Tính chiều cao của text
-    const textHeight = calculateTextHeight(text, 20, 10);  // Giả sử fontsize là 20, lineSpacing là 10
-
-    // Xác định vị trí của text trên video
-    const yPosition = height - textHeight - 30;  // Cách đáy 30px
+    const textHeight = calculateTextHeight(text, 20, 10);
+    const yPosition = height - textHeight - 30;
 
     return new Promise((resolve, reject) => {
       ffmpeg()
@@ -65,12 +60,6 @@ async function createVideoSegments(images, scripts, durations) {
           `-t ${duration}`,
           '-pix_fmt yuv420p',
         ])
-        // .outputOptions([
-        //   '-vf',
-        //   `scale='2400:trunc(ih*2400/iw/2)*2',fade=t=in:st=0:d=1,drawtext=text='${text.replace(/:/g, '\\:').replace(/'/g, "\\'")}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10`,
-        //   `-t ${duration}`,
-        //   '-pix_fmt yuv420p',
-        // ])
         .noAudio()
         .save(output)
         .on('end', () => resolve(output))
@@ -84,9 +73,6 @@ async function createVideoSegments(images, scripts, durations) {
   return Promise.all(promises);
 }
 
-
-
-// Nối các clip lại thành một video
 async function concatVideoSegments(videoPaths) {
   const listFile = 'video_list.txt';
   const content = videoPaths.map(file => `file '${path.resolve(file)}'`).join('\n');
@@ -107,7 +93,6 @@ async function concatVideoSegments(videoPaths) {
   });
 }
 
-// Ghép video với audio
 async function mergeWithAudio(videoPath, audioPath, outputPath = 'final_output.mp4') {
   return new Promise((resolve, reject) => {
     ffmpeg()
@@ -123,32 +108,38 @@ async function mergeWithAudio(videoPath, audioPath, outputPath = 'final_output.m
   });
 }
 
-// Gọi toàn bộ quá trình
 async function createFullVideo(images, scripts, durations, audioPath, outputPath = 'final_output.mp4') {
   try {
-    console.log('🔹 Đang tạo từng clip từ ảnh...');
-    const clips = await createVideoSegments(images, scripts, durations);
+    if (isRender) {
+      // Chạy tuần tự trên Render
+      console.log('🔹 Đang tạo video từng clip một... (Render)');
+      for (let i = 0; i < images.length; i++) {
+        const clip = await createVideoSegments([images[i]], [scripts[i]], [durations[i]]);
+        console.log(`Clip ${i} đã hoàn thành`);
+      }
+    } else {
+      // Chạy song song ở local
+      console.log('🔹 Đang tạo từng clip từ ảnh... (Local)');
+      const clips = await createVideoSegments(images, scripts, durations);
+      console.log('🔹 Đang nối các clip lại...');
+      const mergedVideo = await concatVideoSegments(clips);
 
-    console.log('🔹 Đang nối các clip lại...');
-    const mergedVideo = await concatVideoSegments(clips);
+      console.log('🔹 Đang ghép với âm thanh...');
+      const finalOutput = await mergeWithAudio(mergedVideo, audioPath, outputPath);
 
-    console.log('🔹 Đang ghép với âm thanh...');
-    const finalOutput = await mergeWithAudio(mergedVideo, audioPath, outputPath);
+      console.log('✅ Video đã hoàn thành:', finalOutput);
+      clips.forEach(file => fs.unlinkSync(file));
+      fs.unlinkSync(mergedVideo);
+      fs.unlinkSync('video_list.txt');
 
-    console.log('✅ Video đã hoàn thành:', finalOutput);
-    // Xóa tệp tạm sau khi tạo xong
-    clips.forEach(file => fs.unlinkSync(file));
-    fs.unlinkSync(mergedVideo);
-    fs.unlinkSync('video_list.txt'); // Xóa tệp danh sách
-
-    return finalOutput;
+      return finalOutput;
+    }
   } catch (err) {
     console.error('❌ Lỗi tạo video:', err);
     throw err;
   }
 }
 
-// Export các hàm
 export {
   createFullVideo,
   createVideoSegments,
