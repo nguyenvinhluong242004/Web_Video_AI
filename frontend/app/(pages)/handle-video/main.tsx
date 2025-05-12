@@ -13,6 +13,8 @@ interface ContentMainProps {
     scripts: string[];   // các script cho từng clip
     audioUrlsVer2: string[];
     script: string | null;
+    outputVideo: string | "";
+    setOutputVideo: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function Main({
@@ -25,12 +27,13 @@ export default function Main({
     mergeAudio,
     scripts,
     audioUrlsVer2,
-    script
+    script,
+    outputVideo, 
+    setOutputVideo
 }: ContentMainProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [videoDuration, setVideoDuration] = useState<number[]>([]); // thời gian của từng clip
     const [isProcessing, setIsProcessing] = useState(false);
-    const [outputVideo, setOutputVideo] = useState<string>("");
 
     const toggleSelectImage = (imgUrl: string) => {
         setAllImages((prev) => {

@@ -34,6 +34,8 @@ export default function Home() {
   const [allImages, setAllImages] = useState<string[]>([]);
   const [restartVideo, setRestartVideo] = useState(false);
 
+  const [outputVideo, setOutputVideo] = useState<string>("");
+
 
   const tabs = [
     { key: "script", label: "Content" },
@@ -152,6 +154,8 @@ export default function Home() {
           scripts={scripts}
           audioUrlsVer2={audioUrlsVer2}
           script={scriptContent}
+          outputVideo={outputVideo}
+          setOutputVideo={setOutputVideo}
         />;
       default:
         return null;
