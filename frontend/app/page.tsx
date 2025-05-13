@@ -143,20 +143,24 @@ export default function Home() {
         );
 
       case "video":
-        return <MainVideo
-          promptImages={promptImages}
-          images={images}
-          setImages={setImages}
-          restart={restartVideo}
-          allImages={allImages}
-          setAllImages={setAllImages}
-          mergeAudio={mergedAudioUrlVer2}
-          scripts={scripts}
-          audioUrlsVer2={audioUrlsVer2}
-          script={scriptContent}
-          outputVideo={outputVideo}
-          setOutputVideo={setOutputVideo}
-        />;
+        return (
+          <div className="w-full flex flex-col items-center gap-4 mr-4 ml-4">
+            <MainVideo
+              promptImages={promptImages}
+              images={images}
+              setImages={setImages}
+              restart={restartVideo}
+              allImages={allImages}
+              setAllImages={setAllImages}
+              mergeAudio={mergedAudioUrlVer2}
+              scripts={scripts}
+              audioUrlsVer2={audioUrlsVer2}
+              script={scriptContent}
+              outputVideo={outputVideo}
+              setOutputVideo={setOutputVideo}
+            />;
+          </div>
+        );
       default:
         return null;
     }

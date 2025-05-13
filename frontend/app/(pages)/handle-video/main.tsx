@@ -169,10 +169,10 @@ export default function Main({
             <div className="flex flex-col md:flex-row">
                 <div>
                     <h3 className="text-xl font-bold">Tiêu đề video</h3>
-                    <div className="flex flex-col md:flex-row border-b-2 pb-12 md:pb-3 border-gray-600">
+                    <div className="flex flex-col md:flex-row border-b-2 pb-3 md:pb-3 border-gray-600">
 
                         {script &&
-                            <div className="border-1 p-2 rounded-md text-sm mt-4">
+                            <div className="border-1 border-gray-300 p-2 rounded-md text-sm mt-2 md:mt-4">
                                 {script}
                             </div>
                         }
@@ -187,15 +187,15 @@ export default function Main({
                                         key={i}
                                         src={img}
                                         alt={`selected-${i}`}
-                                        className="w-full h-full object-cover rounded-md border border-green-500"
+                                        className="w-full h-full object-cover rounded-md border border-green-200"
                                     />
                                 ))}
                             </div>
                         </div>
                     )}
                 </div>
-                <div className="mt-4 md:mt-0 text-black w-[360px] ml-5">
-                    <div className="flex justify-between items-center w-[360px]">
+                <div className="mt-4 md:mt-0 text-black w-full md:w-[360px] md:ml-5">
+                    <div className="flex justify-between items-center w-full md:w-[360px]">
 
                         <h3 className="text-xl font-bold">Video đã tạo</h3>
                         <div className="text-black mt-0">

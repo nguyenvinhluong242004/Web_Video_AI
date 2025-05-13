@@ -48,7 +48,7 @@ export default function Main({ script, setScript, prompt, setPrompt, handleScrip
 
                 <div className="h-full">
 
-                    <h3 className="text-xl mt-4 font-bold">Tiêu đề video</h3>
+                    <h3 className="text-xl md:mt-4 font-bold">Tiêu đề video</h3>
                     <label className="block">
                         <textarea
                             value={prompt ? prompt : ""}

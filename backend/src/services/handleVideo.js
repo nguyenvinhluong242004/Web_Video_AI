@@ -43,7 +43,10 @@ async function createVideoSegments(images, scripts, durations) {
     const output = `clip_${index}.mp4`;
     const { width, height } = { width: 600, height: 800 };
     const sValue = `${width}x${height}`;
-    const fps = 30;
+    let fps = 60;
+    if (isRender) {
+      fps = 30;
+    }
     const dFrames = Math.ceil(duration * fps);
     const textHeight = calculateTextHeight(text, 20, 10);
     const yPosition = height - textHeight - 30;
