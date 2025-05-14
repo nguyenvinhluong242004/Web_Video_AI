@@ -19,7 +19,7 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
     const [voice, setVoice] = useState("vi-VN-HoaiMyNeural (vi-VN, Female)");
     const [rate, setRate] = useState(0);
     const [num_lines, setNumLines] = useState(2);
-    const [pitch, setPitch] = useState(0);
+    const [pitch, setPitch] = useState(12);
     const [loading, setLoading] = useState(false);
     const [audioUrl, setAudioUrl] = useState<string | null>(url);
 

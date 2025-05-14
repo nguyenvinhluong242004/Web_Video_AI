@@ -43,7 +43,7 @@ async function createVideoSegments(images, scripts, durations) {
     const output = `clip_${index}.mp4`;
     const { width, height } = { width: 600, height: 800 };
     const sValue = `${width}x${height}`;
-    let fps = 60;
+    let fps = 120;
     if (isRender) {
       fps = 30;
     }
@@ -56,14 +56,41 @@ async function createVideoSegments(images, scripts, durations) {
         .input(image)
         .loop(duration)
         .videoCodec('libx264')
+        // .outputOptions([
+        //   '-vf',
+        //   `scale=2400:-1,zoompan=z='min(zoom+0.0002,1.5)':x='floor(iw/2-(iw/zoom/2))':y='floor(ih/2-(ih/zoom/2))':d=${dFrames}:s=${sValue}:fps=${fps},
+        //   drawtext=text='${text}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10`,
+        //   `-t ${duration}`,
+        //   '-pix_fmt yuv420p',
+        //   '-crf 28'
+        // ])
         .outputOptions([
           '-vf',
-          `scale=2400:-1,zoompan=z='min(zoom+0.0005,1.5)':x='floor(iw/2-(iw/zoom/2))':y='floor(ih/2-(ih/zoom/2))':d=${dFrames}:s=${sValue}:fps=${fps},
-          drawtext=text='${text}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10`,
+          `scale=3200:-1,zoompan=z='min(zoom+0.0002,1.5)':x='floor(iw/2-(iw/zoom/2))':y='floor(ih/2-(ih/zoom/2))':d=${dFrames}:s=${sValue}:fps=${fps},
+            drawtext=text='${text}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10,
+            noise=alls=10:allf=t+u`,
           `-t ${duration}`,
           '-pix_fmt yuv420p',
           '-crf 28'
         ])
+        //       .outputOptions([
+        //         '-vf',
+        //         `scale=2400:-1,zoompan=z='min(zoom+0.0002,1.1)':x='iw/2-(iw/zoom/2)+10*sin(0.05*on)':y='ih/2-(ih/zoom/2)':d=${dFrames}:s=${sValue}:fps=${fps},
+        // drawtext=text='${text}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10`,
+        //         `-t ${duration}`,
+        //         '-pix_fmt yuv420p',
+        //         '-crf 28'
+        //       ])
+        //       .outputOptions([
+        //         '-vf',
+        //         `scale=iw*1.1:ih*1.1, \
+        //  crop=iw/1.2:ih/1.2:x='10*sin(0.05*t)':y='10*sin(0.03*t)', \
+        //  drawtext=text='${text}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10`,
+        //         `-t ${duration}`,
+        //         '-pix_fmt yuv420p',
+        //         '-crf 28'
+        //       ])
+
         .noAudio()
         .save(output)
         .on('end', () => resolve(output))

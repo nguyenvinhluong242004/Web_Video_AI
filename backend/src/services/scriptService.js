@@ -25,6 +25,7 @@ Yêu cầu bắt buộc:
 - Khi mô tả, phải có sự liên kết với nhau, ví dụ toàn bộ đều liên quan đến nam hoặc nữ nếu có phần liên quan người.
 - Kể cả đoạn cuối cùng cũng phải có mô tả ảnh.
 - Không lặp lại mô tả ảnh. Không được viết chú thích ngoài đoạn văn.
+- Các đoạn nội dung nên phong phú, tránh lặp lại.
 
 Ví dụ:
 Đoạn văn đầy đủ viết bằng tiếng Việt, mô tả ảnh bằng tiếng Anh đặt sau đoạn như thế này:

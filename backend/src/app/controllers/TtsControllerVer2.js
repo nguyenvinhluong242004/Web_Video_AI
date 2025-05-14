@@ -12,7 +12,7 @@ const synthesizeGradioSpeech = async (req, res) => {
       pitch,
       num_lines,
     });
-
+    // console.log(result) // mô tả script không ổn lắm
     // Lọc bỏ giá trị null và lấy URL file âm thanh
     const audioData = result.data?.filter(item => item !== null)[0];
     if (!audioData || !audioData.url) {
