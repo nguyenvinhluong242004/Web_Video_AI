@@ -71,7 +71,7 @@ async function createVideoSegments(images, scripts, durations) {
             noise=alls=10:allf=t+u`,
           `-t ${duration}`,
           '-pix_fmt yuv420p',
-          '-crf 28'
+          '-crf 24'
         ])
         //       .outputOptions([
         //         '-vf',
