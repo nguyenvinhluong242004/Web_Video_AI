@@ -16,8 +16,8 @@
 ---
 
 ### 🛠️ Công nghệ sử dụng
-- **Frontend:** React.js, Next.js, Tailwind CSS  
-- **Backend:** NestJS / Node.js / .NET
+- **Frontend:** Next.js, Tailwind CSS  
+- **Backend:** Node.js
 - **AI Services:** Groq SDK, iFlyTek API, HuggingFace (tạo ảnh/video từ prompt)  
 - **Media Handling:** FFmpeg  
 - **Authentication:** JWT  
