@@ -5,7 +5,7 @@ import MainImage from "./(pages)/text-to-image-v1/contentMain";
 import MainImageV2 from "./(pages)/text-to-image-v2/contentMain";
 import MainSpeed from "./(pages)/text-to-speed-v1/contentMain";
 import MainSpeedV2 from "./(pages)/text-to-speed-v2/contentMain";
-import mergeAudios from "./utils/mergeAudio";
+import { mergeAudios } from "./utils/mergeAudio";
 import MainVideo from "./(pages)/handle-video/main";
 
 export default function Home() {
@@ -137,6 +137,7 @@ export default function Home() {
                 audioUrls={audioUrlsVer2}
                 setAudioUrls={setAudioUrlsVer2}
                 mergedAudioUrl={mergedAudioUrlVer2}
+                setMergedAudioUrl={setMergedAudioUrlVer2}
               />
             )}
           </div>
