@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import Main from "./main";
-import { addBackgroundMusic } from "../../utils/mergeAudio"; // Đảm bảo bạn có file này
+import { addBackgroundMusic } from "../../utils/mergeAudio";
 
 interface ContentMainProps {
     script: string | null;
@@ -13,15 +13,23 @@ interface ContentMainProps {
     setAudioUrls: React.Dispatch<React.SetStateAction<string[]>>;
     mergedAudioUrl: string | null;
     setMergedAudioUrl: React.Dispatch<React.SetStateAction<string | null>>;
+    mergedAudioUrlMusic: string | null;
+    setMergedAudioUrlMusic: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedAudioType: string;
+    setSelectedAudioType: React.Dispatch<React.SetStateAction<"original" | "withMusic">>;
 }
 
 export default function ContentMain({
-    script, setScript, restart, scripts, setScripts, audioUrls, setAudioUrls, mergedAudioUrl, setMergedAudioUrl
+    script, setScript,
+    restart,
+    scripts, setScripts,
+    audioUrls, setAudioUrls,
+    mergedAudioUrl, setMergedAudioUrl,
+    mergedAudioUrlMusic, setMergedAudioUrlMusic,
+    selectedAudioType, setSelectedAudioType
 }: ContentMainProps) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [backgroundMusicFile, setBackgroundMusicFile] = useState<File | null>(null);
-    const [mergedWithMusicUrl, setMergedWithMusicUrl] = useState<string | null>(null);
-
     const setAudioUrlAtIndex = (index: number, url: string) => {
         setAudioUrls((prev) => {
             const updated = [...prev];
@@ -36,11 +44,10 @@ export default function ContentMain({
             alert("Vui lòng chọn nhạc nền và đảm bảo đã có audio merge.");
             return;
         }
-        // const mainAudioBlob = await fetch(mergedAudioUrl).then((res) => res.blob());
-        const mixedBlob = await addBackgroundMusic(backgroundMusicFile, mergedAudioUrl, 0.1, 0.7);
+        const mixedBlob = await addBackgroundMusic(backgroundMusicFile, mergedAudioUrl, 0.1, 0.7); // musicVolume, mainVolume
         const mixedUrl = URL.createObjectURL(mixedBlob);
-        setMergedAudioUrl(mixedUrl);
-        setMergedWithMusicUrl(mixedUrl);
+        setMergedAudioUrlMusic(mixedUrl);
+        setSelectedAudioType("withMusic");
     };
 
     useEffect(() => {
@@ -106,15 +113,47 @@ export default function ContentMain({
 
             {mergedAudioUrl && (
                 <div className="mt-6 flex flex-col items-center gap-4">
-                    <h2 className="text-xl font-bold text-gray-800">🎧 Audio đã được ghép nối:</h2>
-                    <audio controls src={mergedAudioUrl}></audio>
-                    <a href={mergedAudioUrl} download="merged_audio.wav" className="text-blue-500 text-sm rounded-xl border p-1 hover:bg-gray-200">
+                    <h2 className="text-xl font-bold text-gray-800">🎧 Audio Preview:</h2>
+
+                    {/* Chọn loại audio */}
+                    <div className="flex gap-2">
+                        <button
+                            className={`cursor-pointer px-3 py-1 rounded ${selectedAudioType === "original" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+                            onClick={() => setSelectedAudioType("original")}
+                        >
+                            🎙️ Audio Gốc
+                        </button>
+                        {mergedAudioUrlMusic && (
+                            <button
+                                className={`cursor-pointer px-3 py-1 rounded ${selectedAudioType === "withMusic" ? "bg-green-600 text-white" : "bg-gray-300"}`}
+                                onClick={() => setSelectedAudioType("withMusic")}
+                            >
+                                🎶 Audio Có Nhạc Nền
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Trình phát audio tương ứng */}
+                    <audio
+                        controls
+                        src={selectedAudioType === "withMusic" && mergedAudioUrlMusic
+                            ? mergedAudioUrlMusic
+                            : mergedAudioUrl}
+                    />
+
+                    <a
+                        href={selectedAudioType === "withMusic" && mergedAudioUrlMusic
+                            ? mergedAudioUrlMusic
+                            : mergedAudioUrl}
+                        download={selectedAudioType === "withMusic" ? "final_audio_with_music.wav" : "merged_audio.wav"}
+                        className="text-blue-500 text-sm rounded-xl border p-1 hover:bg-gray-200"
+                    >
                         ⬇️ Tải xuống
                     </a>
 
-                    <div className="mt-6 flex flex-col items-center gap-2 text-black">
-                        <label className="text-md font-medium">🎵 Thêm nhạc nền:</label>
-                        <input type="file" accept="audio/*" onChange={(e) => setBackgroundMusicFile(e.target.files?.[0] || null)} />
+                    <div className="mt-0 flex flex-col items-center gap-2 text-black">
+                        <label className="text-xl font-medium">🎵 Thêm nhạc nền:</label>
+                        <input className="cursor-pointer" type="file" accept="audio/*" onChange={(e) => setBackgroundMusicFile(e.target.files?.[0] || null)} />
                         <button
                             onClick={handleMergeWithMusic}
                             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded cursor-pointer"
@@ -122,16 +161,6 @@ export default function ContentMain({
                             🎚️ Merge với nhạc nền
                         </button>
                     </div>
-
-                    {mergedWithMusicUrl && (
-                        <div className="mt-4 flex flex-col items-center gap-2 text-black">
-                            <h3 className="text-md font-medium">🔊 Kết quả sau khi thêm nhạc nền:</h3>
-                            <audio controls src={mergedWithMusicUrl}></audio>
-                            <a href={mergedWithMusicUrl} download="final_audio.wav" className="text-blue-500 text-sm rounded border px-3 py-1 hover:bg-gray-200">
-                                ⬇️ Tải xuống
-                            </a>
-                        </div>
-                    )}
                 </div>
             )}
         </div>

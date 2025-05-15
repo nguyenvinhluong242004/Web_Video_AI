@@ -27,10 +27,11 @@ export default function Home() {
   const [restartImgVer2, setRestartImgVer2] = useState(false);
   const [audioUrlsVer2, setAudioUrlsVer2] = useState<string[]>([]);
   const [mergedAudioUrlVer2, setMergedAudioUrlVer2] = useState<string | null>(null);
+  const [mergedAudioUrlVer2Music, setMergedAudioUrlVer2Music] = useState<string | null>(null);
   const [restartVer2, setRestartVer2] = useState(false);
   const [speedVersion, setSpeedVersion] = useState<"v1" | "v2">("v2");
   const [imageVersion, setImageVersion] = useState<"v1" | "v2">("v2");
-  const [audio, setAudio] = useState<string | null>(null);
+  const [selectedAudioType, setSelectedAudioType] = useState<"original" | "withMusic">("original");
   const [allImages, setAllImages] = useState<string[]>([]);
   const [restartVideo, setRestartVideo] = useState(false);
 
@@ -138,6 +139,10 @@ export default function Home() {
                 setAudioUrls={setAudioUrlsVer2}
                 mergedAudioUrl={mergedAudioUrlVer2}
                 setMergedAudioUrl={setMergedAudioUrlVer2}
+                mergedAudioUrlMusic={mergedAudioUrlVer2Music}
+                setMergedAudioUrlMusic={setMergedAudioUrlVer2Music}
+                selectedAudioType={selectedAudioType}
+                setSelectedAudioType={setSelectedAudioType}
               />
             )}
           </div>
@@ -154,6 +159,11 @@ export default function Home() {
               allImages={allImages}
               setAllImages={setAllImages}
               mergeAudio={mergedAudioUrlVer2}
+              setMergedAudioUrl={setMergedAudioUrlVer2}
+              mergedAudioUrlMusic={mergedAudioUrlVer2Music}
+              setMergedAudioUrlMusic={setMergedAudioUrlVer2Music}
+              selectedAudioType={selectedAudioType}
+              setSelectedAudioType={setSelectedAudioType}
               scripts={scripts}
               audioUrlsVer2={audioUrlsVer2}
               script={scriptContent}
@@ -228,6 +238,7 @@ export default function Home() {
     setRestartImgVer2(true);
     setMergedAudioUrl(null);
     setMergedAudioUrlVer2(null);
+    setMergedAudioUrlVer2Music(null);
     setImages(initialImages);
     setImagesVer2([]);
     setAllImages([]);

@@ -10,6 +10,11 @@ interface ContentMainProps {
     allImages: string[];
     setAllImages: React.Dispatch<React.SetStateAction<string[]>>;
     mergeAudio: string | null;  // đường dẫn tới file audio
+    setMergedAudioUrl: React.Dispatch<React.SetStateAction<string | null>>;
+    mergedAudioUrlMusic: string | null;
+    setMergedAudioUrlMusic: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedAudioType: string;
+    setSelectedAudioType: React.Dispatch<React.SetStateAction<"original" | "withMusic">>;
     scripts: string[];   // các script cho từng clip
     audioUrlsVer2: string[];
     script: string | null;
@@ -24,11 +29,13 @@ export default function Main({
     restart,
     allImages,
     setAllImages,
-    mergeAudio,
+    mergeAudio, setMergedAudioUrl,
+    mergedAudioUrlMusic, setMergedAudioUrlMusic,
+    selectedAudioType, setSelectedAudioType,
     scripts,
     audioUrlsVer2,
     script,
-    outputVideo, 
+    outputVideo,
     setOutputVideo
 }: ContentMainProps) {
     const [activeIndex, setActiveIndex] = useState(0);
@@ -110,11 +117,23 @@ export default function Main({
 
                 // Nếu mergeAudio là base64 hoặc blob url thì cũng phải fetch rồi append file
                 if (mergeAudio) {
-                    const res = await fetch(mergeAudio);
+                    let res;
+                    if (selectedAudioType === 'original') {
+                        res = await fetch(mergeAudio);
+                    }
+                    else {
+                        if (!mergedAudioUrlMusic) {
+                            return;
+                        }
+                        res = await fetch(mergedAudioUrlMusic);
+                    }
                     const audioBlob = await res.blob();
                     const audioFile = new File([audioBlob], "audio.mp3", { type: audioBlob.type });
 
                     formData.append("audio", audioFile);
+                }
+                else {
+                    return;
                 }
 
                 const response = await axios.post(
@@ -178,8 +197,38 @@ export default function Main({
                         }
                     </div>
 
+                    <h3 className="text-xl font-bold mt-3">🎧 Audio Preview:</h3>
+
+                    {/* Chọn loại audio */}
+                    <div className="flex gap-2 mt-2">
+                        <button
+                            className={`cursor-pointer px-3 py-1 rounded ${selectedAudioType === "original" ? "bg-blue-600 text-white" : "bg-gray-300"}`}
+                            onClick={() => setSelectedAudioType("original")}
+                        >
+                            🎙️ Audio Gốc
+                        </button>
+                        {mergedAudioUrlMusic && (
+                            <button
+                                className={`cursor-pointer px-3 py-1 rounded ${selectedAudioType === "withMusic" ? "bg-green-600 text-white" : "bg-gray-300"}`}
+                                onClick={() => setSelectedAudioType("withMusic")}
+                            >
+                                🎶 Audio Có Nhạc Nền
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Trình phát audio tương ứng */}
+                    {(mergeAudio || mergedAudioUrlMusic) &&
+                        <audio
+                            className="mt-3"
+                            controls
+                            src={selectedAudioType === "withMusic" && mergedAudioUrlMusic
+                                ? mergedAudioUrlMusic
+                                : (mergeAudio ? mergeAudio : "")}
+                        />}
+
                     {allImages.length > 0 && (
-                        <div className="mt-3">
+                        <div className="mt-3 border-t-2 pt-4">
                             <h2 className="text-lg font-bold text-green-700 mb-2">🎬 Ảnh đã chọn để làm video: ({allImages.length})</h2>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                 {allImages.map((img, i) => (
