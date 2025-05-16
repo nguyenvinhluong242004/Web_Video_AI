@@ -1,12 +1,36 @@
-import React, { useState } from "react";
+"use client";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
-export default function Main() {
-    const [imageUrls, setImageUrls] = useState<string[]>([]);
-    const [prompt, setPrompt] = useState("A small cabin on top of a snowy mountain in the style of Disney, artstation");
-    const [negative, setNegative] = useState("low quality, ugly");
+interface MainProps {
+    idx: number;
+    restart: boolean;
+    prompt: string;
+    setPromptAtIndex: (index: number, url: string) => void; // Hàm để cập nhật prompt image tại index
+    images: string[];
+    setImagesAtIndex: (index: number, url: string[]) => void;
+    setImagesVer1AtIndex: (index: number, url: string) => void; // Hàm để cập nhật prompt image tại index
+    imgChooseVer1: Number[];
+    setChooseImgAtIndex: (index: number, num: number) => void;
+}
+
+export default function Main({ idx, restart, prompt, setPromptAtIndex, images, setImagesAtIndex, setImagesVer1AtIndex, imgChooseVer1, setChooseImgAtIndex }: MainProps) {
+    const calledRef = useRef(false);
+    const [loaded, setLoaded] = useState(true);
+    const [imageUrls, setImageUrls] = useState<string[]>(images || []);
+    const [negative, setNegative] = useState("(deformed, distorted, disfigured), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, misspellings, typos");
     const [scale, setScale] = useState(7);
     const [loading, setLoading] = useState(false);
+    const [log, setLog] = useState("");
+
+    useEffect(() => {
+        if (restart && loaded && !calledRef.current) {
+            calledRef.current = true;
+            setLoaded(false);
+            handleGenerateImage();
+            console.log("calllll")
+        }
+    }, [restart, loaded]);
 
     const handleGenerateImage = async () => {
         if (!prompt.trim()) return alert("Prompt không được để trống.");
@@ -26,28 +50,43 @@ export default function Main() {
             const fullUrls = base64Images.map((img) =>
                 img.startsWith("data:image") ? img : `data:image/png;base64,${img}`
             );
-
-            setImageUrls(fullUrls);
+            console.log(fullUrls)
+            setImageUrls(fullUrls)
+            setImagesAtIndex(idx, fullUrls);
+            setImagesVer1AtIndex(idx, fullUrls[0]);
+            setChooseImgAtIndex(idx, 0);
+            setLog("");
         } catch (err) {
-            console.error("Lỗi tạo ảnh:", err);
-            alert("Có lỗi khi tạo ảnh.");
-        }
+            let errorMessage = "Không thể tạo ảnh ngay bây giờ! Hãy thử lại sau!";
 
+            // ✅ Sửa từ 'responsive' → 'response'
+            if (axios.isAxiosError(err) && err.response) {
+                errorMessage = err.response.data?.message || err.message;
+            } else if (typeof err === "string") {
+                errorMessage = err;
+            } else if (err instanceof Error) {
+                errorMessage = err.message;
+            } else {
+                errorMessage = JSON.stringify(err);
+            }
+
+            console.error("Lỗi tạo ảnh:", err);
+            setLog(errorMessage);
+        }
         setLoading(false);
     };
 
-    return (
-        <div className="w-full mx-auto flex flex-col gap-2 text-black px-4">
-            <h1 className="text-2xl font-bold text-center text-gray-800">🖼️ Tạo Ảnh từ Prompt</h1>
 
-            <div className="flex flex-col md:flex-row gap-6 mt-2">
-                <div className="flex-1">
+    return (
+        <div className="w-full mx-auto flex flex-col md:flex-row gap-2 text-black md:ml-3">
+            <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1 md:max-w-[240px]">
                     <label className="text-lg font-semibold">🎯 Prompt:</label>
                     <textarea
                         value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
+                        onChange={(e) => setPromptAtIndex(idx, e.target.value)}
                         placeholder="Nhập mô tả ảnh..."
-                        className="w-full border rounded-md px-3 py-2 resize-none mt-2"
+                        className="text-sm w-full border rounded-md px-3 py-2 resize-none mt-2"
                         rows={4}
                     />
 
@@ -56,11 +95,11 @@ export default function Main() {
                         value={negative}
                         onChange={(e) => setNegative(e.target.value)}
                         placeholder="Những gì cần tránh..."
-                        className="w-full border rounded-md px-3 py-2 resize-none"
+                        className="text-sm w-full border rounded-md px-3 py-2 resize-none"
                         rows={3}
                     />
 
-                    <label className="font-semibold mt-4 block">🎚️ Scale (1-50):</label>
+                    <label className="font-semibold mt-4 block">🎚️ Scale (1-50): {scale}</label>
                     <input
                         type="range"
                         min={1}
@@ -70,7 +109,6 @@ export default function Main() {
                         onChange={(e) => setScale(Number(e.target.value))}
                         className="w-full"
                     />
-                    <div className="text-center mt-2">{scale}</div>
 
                     <div className="text-center mt-4">
                         <button
@@ -81,37 +119,55 @@ export default function Main() {
                             {loading ? "Đang tạo..." : "🎨 Tạo ảnh"}
                         </button>
                     </div>
+                    {log !== "" &&
+                        <div className="text-red-500 text-xs mt-3 text-center font-bold">
+                            {log}
+                        </div>
+                    }
                 </div>
 
                 <div className="flex-1">
                     <h3 className="text-lg font-semibold mb-2">📷 Kết quả</h3>
                     {imageUrls.length > 0 ? (
                         <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
-                            {imageUrls.map((url, idx) => (
-                                <div key={idx} className="flex flex-col items-center border rounded-lg p-2 shadow-md">
-                                    <img
-                                        src={url}
-                                        alt={`Ảnh ${idx + 1}`}
-                                        className="w-full rounded-md mb-2"
-                                    />
-                                    <a
-                                        href={url}
-                                        download={`image_${idx + 1}.png`}
-                                        className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-1 rounded"
-                                    >
-                                        ⬇️ Tải xuống
-                                    </a>
+                            {imageUrls.map((url, imgIndex) => (
+                                <div key={imgIndex} className="flex flex-col items-center border rounded-lg p-2 shadow-md">
+                                    <div>
+                                        <img
+                                            src={url}
+                                            alt={`Ảnh ${imgIndex + 1}`}
+                                            className="w-full rounded-md mb-2"
+                                        />
+                                    </div>
+                                    <div className="flex w-full flex-row gap-2">
+                                        <a
+                                            onClick={() => setChooseImgAtIndex(idx, imgIndex)}
+                                            className={`flex-1 text-center ${imgChooseVer1[idx] === imgIndex
+                                                ? "bg-gray-400 cursor-not-allowed"
+                                                : "bg-green-600 hover:bg-green-700 cursor-pointer"
+                                                } text-white text-sm font-medium px-2 py-1 rounded`}
+                                        >
+                                            {imgChooseVer1[idx] === imgIndex ? "Đã chọn" : "Chọn"}
+                                        </a>
+                                        <a
+                                            href={url}
+                                            download={`image_${imgIndex + 1}.png`}
+                                            className="bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-2 py-1 rounded"
+                                        >
+                                            Tải xuống
+                                        </a>
+                                    </div>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-500 rounded-md">
+                        <div className="flex-1 w-full h-64 bg-gray-100 flex items-center justify-center text-gray-500 rounded-md">
                             Chưa có ảnh
                         </div>
                     )}
 
                 </div>
             </div>
-        </div>
+        </div >
     );
 }

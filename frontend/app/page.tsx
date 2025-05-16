@@ -19,6 +19,8 @@ export default function Home() {
     [],
   ];
   const [images, setImages] = useState<string[][]>(initialImages);
+  const [imagesVer1, setImagesVer1] = useState<string[]>([]);
+  const [imgChooseVer1, setImgChooseVer1] = useState<Number[]>([]);
   const [imagesVer2, setImagesVer2] = useState<string[]>([]);
   const [audioUrls, setAudioUrls] = useState<string[]>([]);
   const [mergedAudioUrl, setMergedAudioUrl] = useState<string | null>(null);
@@ -33,6 +35,7 @@ export default function Home() {
   const [imageVersion, setImageVersion] = useState<"v1" | "v2">("v2");
   const [selectedAudioType, setSelectedAudioType] = useState<"original" | "withMusic">("original");
   const [allImages, setAllImages] = useState<string[]>([]);
+  const [allImagesVer1, setAllImagesVer1] = useState<string[]>([]);
   const [restartVideo, setRestartVideo] = useState(false);
 
   const [outputVideo, setOutputVideo] = useState<string>("");
@@ -75,11 +78,16 @@ export default function Home() {
             {imageVersion === "v1" ? (
               <MainImage
                 promptImages={promptImages}
+                setPromptImages={setPromptImages}
                 images={images}
                 setImages={setImages}
+                imagesVer1={imagesVer1}
+                setImagesVer1={setImagesVer1}
                 restartImg={restartImg}
                 allImages={allImages}
                 setAllImages={setAllImages}
+                imgChooseVer1={imgChooseVer1}
+                setImgChooseVer1={setImgChooseVer1}
               />
             ) : (
               <MainImageV2
@@ -240,6 +248,7 @@ export default function Home() {
     setMergedAudioUrlVer2(null);
     setMergedAudioUrlVer2Music(null);
     setImages(initialImages);
+    setImagesVer1([]);
     setImagesVer2([]);
     setAllImages([]);
 
@@ -301,6 +310,19 @@ export default function Home() {
       setRestartImgVer2(false);
     }
   }, [imagesVer2]);
+
+  useEffect(() => {
+    const allImagesExist =
+      imagesVer1.length === scripts.length &&
+      imagesVer1.every(url => typeof url === "string" && url.trim() !== "");
+
+    if (scripts.length > 0 && allImagesExist) {
+      // Ghép mảng hoặc xử lý ảnh (tuỳ nhu cầu)
+      setAllImagesVer1([...imagesVer1]); // hoặc xử lý thêm nếu cần
+      console.log("Đã merge ảnh:", imagesVer1);
+      setRestartImg(false);
+    }
+  }, [imagesVer1]);
 
 
   return (

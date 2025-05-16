@@ -29,7 +29,7 @@ const synthesizeImage = async (req, res) => {
         });
     } catch (error) {
         console.error("Gradio image error:", error);
-        res.status(500).json({ error: "Không tạo được ảnh." });
+        res.status(500).json({ message: error.message, error: "Không tạo được ảnh." });
     }
 };
 

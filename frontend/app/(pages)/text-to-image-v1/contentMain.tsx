@@ -1,22 +1,33 @@
 "use client";
 import React, { useState } from "react";
+import Main from "./main";
 
 interface ContentMainProps {
     promptImages: string[];
+    setPromptImages: React.Dispatch<React.SetStateAction<string[]>>;
     images: string[][];
     setImages: React.Dispatch<React.SetStateAction<string[][]>>;
+    imagesVer1: string[];
+    setImagesVer1: React.Dispatch<React.SetStateAction<string[]>>;
     restartImg: boolean;
     allImages: string[];
     setAllImages: React.Dispatch<React.SetStateAction<string[]>>;
+    imgChooseVer1: Number[];
+    setImgChooseVer1: React.Dispatch<React.SetStateAction<Number[]>>;
 }
 
 export default function ContentMain({
     promptImages,
+    setPromptImages,
     images,
     setImages,
+    imagesVer1,
+    setImagesVer1,
     restartImg,
     allImages,
     setAllImages,
+    imgChooseVer1,
+    setImgChooseVer1
 }: ContentMainProps) {
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -30,62 +41,97 @@ export default function ContentMain({
         });
     };
 
+    // Hàm set URL tại index chính xác
+    const setPromptAtIndex = (index: number, pmt: string) => {
+        setPromptImages((prev) => {
+            const updated = [...prev];
+            updated[index] = pmt;
+            return updated;
+        });
+        console.log("Đã cập nhật audioUrls tại PromptImages:", index, "với Prompt:", pmt);
+    };
+
+    const setImagesAtIndex = (index: number, _images: string[]) => {
+        setImages((prev) => {
+            const updated = [...prev];
+            updated[index] = _images;
+            return updated;
+        });
+        console.log("Đã cập nhật images tại: ", index);
+    };
+
+    const setChooseImgAtIndex = (index: number, num: number) => {
+        setImgChooseVer1((prev) => {
+            const updated = [...prev];
+            updated[index] = num;
+            return updated;
+        });
+        if (images[index] && images[index][num] !== undefined) {
+            setImagesVer1AtIndex(index, images[index][num]);
+        }
+        console.log("Đã cập nhật images tại: ", index);
+    };
+
+    // Hàm set URL tại index chính xác
+    const setImagesVer1AtIndex = (index: number, img: string) => {
+        setImagesVer1((prev) => {
+            const updated = [...prev];
+            updated[index] = img;
+            return updated;
+        });
+        console.log("Đã cập nhật imagesVer1 tại :", index);
+    };
+
     return (
         <div>
-            <h1 className="text-2xl font-bold text-center mb-3 text-gray-800">🖼️ Image Viewer</h1>
+            <h1 className="text-2xl font-bold text-center mb-3 text-gray-800">🖼️ Text to Image</h1>
 
             <div className="flex flex-col md:flex-row border-b-2 pb-12 md:pb-3 border-gray-600">
-                <div className="flex flex-col space-x-2 pb-1 mb-0 text-black gap-1 md:mr-3">
-                    <span className="text-medium mb-5">List Content: {images.length}</span>
+                <div className="flex flex-col space-x-2 pb-1 mb-0 text-black md:mr-0">
+                    <h3 className="text-lg font-semibold mb-2">List Prompt: {promptImages.length}</h3>
 
                     <div className="w-full max-h-[120px] md:max-h-[500px] overflow-y-auto custom-scroll flex flex-col space-x-2 pb-2 mb-3 text-black gap-1"
                         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                        {images.map((_, index) => (
-                            <div className="w-full md:w-[500px] text-center flex bg-gray-300 rounded-md" key={index}>
-                                <button
-                                    onClick={() => setActiveIndex(index)}
-                                    className={`px-4 py-2 w-full md:w-[100px] h-full rounded-t ${activeIndex === index ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-                                    style={{ borderRadius: "5px 0 0 5px" }}
-                                >
-                                    Content {index + 1}
-                                </button>
+                        {promptImages.map((pmt, index) => (
+                            <div className="w-full md:w-[250px] text-center flex bg-gray-300 rounded-md" key={index}>
+                                <div>
+                                    <button
+                                        onClick={() => setActiveIndex(index)}
+                                        className={`text-sm px-1 py-2 w-full md:w-[50px] h-full rounded-t ${activeIndex === index ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+                                        style={{ borderRadius: "5px 0 0 5px" }}
+                                    >
+                                        P{index + 1}
+                                    </button>
+                                </div>
+
+                                <div className="w-full md:w-[200px] pr-2 pl-2 text-sm text-black">{pmt}</div>
                             </div>
+
                         ))}
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-4">
-                    <div>
-                        <h2 className="text-xl font-semibold text-gray-800 mb-2">📌 Prompt: </h2>
-                        <p className="bg-yellow-100 text-black p-2 rounded-md">{promptImages[activeIndex]}</p>
+                {promptImages.length > 0 && promptImages.map((pmt, index) => (
+                    // Hiển thị nội dung chỉ khi phần tử là active
+                    <div key={index} style={{ display: activeIndex === index ? 'block' : 'none' }}>
+                        <Main idx={index} restart={restartImg} prompt={pmt} setPromptAtIndex={setPromptAtIndex} images={images[index]} setImagesAtIndex={setImagesAtIndex} setImagesVer1AtIndex={setImagesVer1AtIndex} imgChooseVer1={imgChooseVer1} setChooseImgAtIndex={setChooseImgAtIndex} />
                     </div>
+                ))}
+                {promptImages.length == 0 &&
+                    <div>
+                        <Main idx={-1} restart={false} prompt={"default"} setPromptAtIndex={setPromptAtIndex} images={[""]} setImagesAtIndex={setImagesAtIndex} setImagesVer1AtIndex={setImagesVer1AtIndex} imgChooseVer1={imgChooseVer1} setChooseImgAtIndex={setChooseImgAtIndex} />
+                    </div>
+                }
 
-                    <div>
-                        <h2 className="text-xl font-semibold text-gray-800 mb-2">🖼️ Ảnh cho Content {activeIndex + 1}</h2>
-                        <div className={`grid ${images[activeIndex] ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1'} gap-3`}>
-                            {images[activeIndex].map((img, i) => (
-                                <div key={i} className="relative group cursor-pointer" onClick={() => toggleSelectImage(img)}>
-                                    <img
-                                        src={img}
-                                        alt={`image-${activeIndex}-${i}`}
-                                        className={`w-full h-32 object-cover rounded-md border-2 ${allImages.includes(img) ? "border-blue-500" : "border-gray-300"
-                                            }`}
-                                    />
-                                    {allImages.includes(img) && (
-                                        <div className="absolute top-1 right-1 bg-blue-500 text-white text-xs px-2 py-1 rounded">Selected</div>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+
+                {/* <Main /> */}
             </div>
 
-            {allImages.length > 0 && (
-                <div className="mt-6">
-                    <h2 className="text-lg font-bold text-green-700 mb-2">🎬 Ảnh đã chọn để làm video: ({allImages.length})</h2>
+            {(imagesVer1 && imagesVer1.length > 0) && (
+                <div className="mt-3">
+                    <h2 className="text-lg font-bold text-green-700 mb-2">🎬 Ảnh đã chọn để làm video: ({imagesVer1.length})</h2>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {allImages.map((img, i) => (
+                        {imagesVer1.map((img, i) => (
                             <img
                                 key={i}
                                 src={img}

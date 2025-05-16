@@ -26,6 +26,7 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
     const [width, setWidth] = useState(1080);
     const [height, setHeight] = useState(1920);
     const [loading, setLoading] = useState(false);
+    const [log, setLog] = useState("");
 
     useEffect(() => {
         if (restart && loaded && !calledRef.current) {
@@ -63,9 +64,11 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
 
             setImageUrl(fullUrl);
             setImagesAtIndex(idx, fullUrl);
+            setLog("");
         } catch (err) {
             console.error("Lỗi tạo ảnh:", err);
-            alert("Có lỗi khi tạo ảnh.");
+            //alert("Có lỗi khi tạo ảnh.");
+            setLog("Không thể tạo ảnh ngay bây giờ! Hãy thử lại sau!");
         }
 
         setLoading(false);
@@ -110,7 +113,7 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
                         </label>
 
 
-                        <label className="block" style={{display: 'none'}}>
+                        <label className="block" style={{ display: 'none' }}>
                             <span className="font-medium">🎨 Custom LoRA:</span>
                             <input
                                 value={customLora}
@@ -145,7 +148,7 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
                             <div className="text-center">{scale}</div>
                         </label>
 
-                        <label className="block" style={{display: 'none'}}>
+                        <label className="block" style={{ display: 'none' }}>
                             <span className="font-medium">🧪 Sampler:</span>
                             <input
                                 value={sampler}
@@ -154,7 +157,7 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
                             />
                         </label>
 
-                        <label className="block" style={{display: 'none'}}>
+                        <label className="block" style={{ display: 'none' }}>
                             <span className="font-medium">🌱 Seed:</span>
                             <input
                                 type="number"
@@ -164,7 +167,7 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
                             />
                         </label>
 
-                        <label className="block" style={{display: 'none'}}>
+                        <label className="block" style={{ display: 'none' }}>
                             <span className="font-medium">💧 Strength (0 - 1):</span>
                             <input
                                 type="number"
@@ -210,6 +213,11 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
                             {loading ? "Đang tạo..." : "🎨 Tạo ảnh"}
                         </button>
                     </div>
+                    {log !== "" &&
+                        <div className="text-red-500 text-xs mt-3 text-center font-bold">
+                            {log}
+                        </div>
+                    }
                 </div>
 
                 <div className="flex-1">
