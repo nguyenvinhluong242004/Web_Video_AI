@@ -18,7 +18,7 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, images, s
     const calledRef = useRef(false);
     const [loaded, setLoaded] = useState(true);
     const [imageUrls, setImageUrls] = useState<string[]>(images || []);
-    const [negative, setNegative] = useState("(deformed, distorted, disfigured), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, misspellings, typos");
+    const [negative, setNegative] = useState("(deformed, distorted, disfigured), poorly drawn, bad anatomy, wrong anatomy, extra limb, missing limb, floating limbs, (mutated hands and fingers), disconnected limbs, mutation, mutated, ugly, disgusting, blurry, amputation, misspellings, typos, face error");
     const [scale, setScale] = useState(7);
     const [loading, setLoading] = useState(false);
     const [log, setLog] = useState("");

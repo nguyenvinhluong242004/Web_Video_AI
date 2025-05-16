@@ -161,11 +161,13 @@ export default function Home() {
           <div className="w-full flex flex-col items-center gap-4 mr-4 ml-4">
             <MainVideo
               promptImages={promptImages}
-              images={images}
-              setImages={setImages}
               restart={restartVideo}
+              imageVersion={imageVersion}
+              setImageVersion={setImageVersion}
               allImages={allImages}
               setAllImages={setAllImages}
+              allImagesVer1={allImagesVer1}
+              setAllImagesVer1={setAllImagesVer1}
               mergeAudio={mergedAudioUrlVer2}
               setMergedAudioUrl={setMergedAudioUrlVer2}
               mergedAudioUrlMusic={mergedAudioUrlVer2Music}
@@ -177,7 +179,7 @@ export default function Home() {
               script={scriptContent}
               outputVideo={outputVideo}
               setOutputVideo={setOutputVideo}
-            />;
+            />
           </div>
         );
       default:

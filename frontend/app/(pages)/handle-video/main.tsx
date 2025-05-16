@@ -4,11 +4,13 @@ import axios from "axios";
 
 interface ContentMainProps {
     promptImages: string[];
-    images: string[][];
-    setImages: React.Dispatch<React.SetStateAction<string[][]>>;
     restart: boolean;
+    imageVersion: string,
+    setImageVersion: React.Dispatch<React.SetStateAction<"v1" | "v2">>;
     allImages: string[];
     setAllImages: React.Dispatch<React.SetStateAction<string[]>>;
+    allImagesVer1: string[];
+    setAllImagesVer1: React.Dispatch<React.SetStateAction<string[]>>;
     mergeAudio: string | null;  // đường dẫn tới file audio
     setMergedAudioUrl: React.Dispatch<React.SetStateAction<string | null>>;
     mergedAudioUrlMusic: string | null;
@@ -24,11 +26,10 @@ interface ContentMainProps {
 
 export default function Main({
     promptImages,
-    images,
-    setImages,
     restart,
-    allImages,
-    setAllImages,
+    imageVersion, setImageVersion,
+    allImages, setAllImages,
+    allImagesVer1, setAllImagesVer1,
     mergeAudio, setMergedAudioUrl,
     mergedAudioUrlMusic, setMergedAudioUrlMusic,
     selectedAudioType, setSelectedAudioType,
@@ -63,10 +64,19 @@ export default function Main({
     }, [outputVideo]);
 
     const handleCreateVideo = async () => {
-        if (allImages.length === 0) {
-            alert("Vui lòng chọn ít nhất 1 ảnh!");
-            return;
+        if (imageVersion === "v1") {
+            if (allImagesVer1.length === 0) {
+                alert("Vui lòng chọn ít nhất 1 ảnh!");
+                return;
+            }
         }
+        else {
+            if (allImages.length === 0) {
+                alert("Vui lòng chọn ít nhất 1 ảnh!");
+                return;
+            }
+        }
+
 
         setIsProcessing(true);
 
@@ -94,23 +104,49 @@ export default function Main({
             }
 
             // Kiểm tra số lượng audio và hình ảnh có khớp không
-            if (durations.length !== allImages.length) {
-                alert("Số lượng ảnh không khớp với số lượng âm thanh");
-                return;
+            if (imageVersion === "v1") {
+                if (durations.length !== allImagesVer1.length) {
+
+                    alert("Số lượng ảnh không khớp với số lượng âm thanh");
+                    return;
+                }
+            }
+            else {
+                if (durations.length !== allImages.length) {
+
+                    alert("Số lượng ảnh không khớp với số lượng âm thanh");
+                    return;
+                }
             }
 
             const formData = new FormData();
 
             try {
-                // Convert từng ảnh sang File và append vào formData
-                for (let i = 0; i < allImages.length; i++) {
-                    const imgUrl = allImages[i];
-                    const res = await fetch(imgUrl); // fetch base64 hoặc blob url
-                    const blob = await res.blob();
-                    const file = new File([blob], `image${i}.jpg`, { type: blob.type });
+                if (imageVersion === "v1") {
+                    if (!allImagesVer1) return;
+                    // Convert từng ảnh sang File và append vào formData
+                    for (let i = 0; i < allImagesVer1.length; i++) {
+                        const imgUrl = allImagesVer1[i];
+                        const res = await fetch(imgUrl); // fetch base64 hoặc blob url
+                        const blob = await res.blob();
+                        const file = new File([blob], `image${i}.jpg`, { type: blob.type });
 
-                    formData.append("images", file); // name 'images' phải trùng với multer
+                        formData.append("images", file); // name 'images' phải trùng với multer
+                    }
                 }
+                else {
+                    if (!allImages) return;
+                    // Convert từng ảnh sang File và append vào formData
+                    for (let i = 0; i < allImages.length; i++) {
+                        const imgUrl = allImages[i];
+                        const res = await fetch(imgUrl); // fetch base64 hoặc blob url
+                        const blob = await res.blob();
+                        const file = new File([blob], `image${i}.jpg`, { type: blob.type });
+
+                        formData.append("images", file); // name 'images' phải trùng với multer
+                    }
+                }
+
 
                 formData.append("scripts", JSON.stringify(scripts));
                 formData.append("durations", JSON.stringify(durations));
@@ -227,21 +263,63 @@ export default function Main({
                                 : (mergeAudio ? mergeAudio : "")}
                         />}
 
-                    {allImages.length > 0 && (
-                        <div className="mt-3 border-t-2 pt-4">
-                            <h2 className="text-lg font-bold text-green-700 mb-2">🎬 Ảnh đã chọn để làm video: ({allImages.length})</h2>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                {allImages.map((img, i) => (
-                                    <img
-                                        key={i}
-                                        src={img}
-                                        alt={`selected-${i}`}
-                                        className="w-full h-full object-cover rounded-md border border-green-200"
-                                    />
-                                ))}
-                            </div>
+                    <div className="mt-3 border-t-2 pt-4">
+                        <div className="flex space-x-4 mb-1">
+                            <button
+                                onClick={() => setImageVersion("v1")}
+                                className={`px-4 py-1 rounded-full text-sm font-semibold border ${imageVersion === "v1"
+                                    ? "bg-black text-white"
+                                    : "text-black hover:bg-gray-100"
+                                    }`}
+                            >
+                                Image V1
+                            </button>
+                            <button
+                                onClick={() => setImageVersion("v2")}
+                                className={`px-4 py-1 rounded-full text-sm font-semibold border ${imageVersion === "v2"
+                                    ? "bg-black text-white"
+                                    : "text-black hover:bg-gray-100"
+                                    }`}
+                            >
+                                Image V2
+                            </button>
                         </div>
-                    )}
+                        {imageVersion === 'v1' ? (
+                            <>
+                                {allImagesVer1 &&
+                                    <>
+                                        <h2 className="text-lg font-bold text-green-700 mb-2">🎬 Ảnh đã chọn để làm video: ({allImagesVer1.length})</h2>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                            {allImagesVer1.map((img, i) => (
+                                                <img
+                                                    key={i}
+                                                    src={img}
+                                                    alt={`selected-${i}`}
+                                                    className="w-full h-full object-cover rounded-md border border-green-200"
+                                                />
+                                            ))}
+                                        </div>
+                                    </>}
+                            </>) : (
+                            <>
+                                {allImages &&
+                                    <>
+                                        <h2 className="text-lg font-bold text-green-700 mb-2">🎬 Ảnh đã chọn để làm video: ({allImages.length})</h2>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                            {allImages.map((img, i) => (
+                                                <img
+                                                    key={i}
+                                                    src={img}
+                                                    alt={`selected-${i}`}
+                                                    className="w-full h-full object-cover rounded-md border border-green-200"
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                }
+                            </>
+                        )}
+                    </div>
                 </div>
                 <div className="mt-4 md:mt-0 text-black w-full md:w-[360px] md:ml-5">
                     <div className="flex justify-between items-center w-full md:w-[360px]">

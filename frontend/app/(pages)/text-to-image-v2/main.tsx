@@ -66,11 +66,22 @@ export default function Main({ idx, restart, prompt, setPromptAtIndex, image, se
             setImagesAtIndex(idx, fullUrl);
             setLog("");
         } catch (err) {
-            console.error("Lỗi tạo ảnh:", err);
-            //alert("Có lỗi khi tạo ảnh.");
-            setLog("Không thể tạo ảnh ngay bây giờ! Hãy thử lại sau!");
-        }
+            let errorMessage = "Không thể tạo ảnh ngay bây giờ! Hãy thử lại sau!";
 
+            // ✅ Sửa từ 'responsive' → 'response'
+            if (axios.isAxiosError(err) && err.response) {
+                errorMessage = err.response.data?.message || err.message;
+            } else if (typeof err === "string") {
+                errorMessage = err;
+            } else if (err instanceof Error) {
+                errorMessage = err.message;
+            } else {
+                errorMessage = JSON.stringify(err);
+            }
+
+            console.error("Lỗi tạo ảnh:", err);
+            setLog(errorMessage);
+        }
         setLoading(false);
     };
 

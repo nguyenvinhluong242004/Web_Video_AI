@@ -37,11 +37,14 @@ function calculateTextHeight(text, fontSize = 20, lineSpacing = 10) {
 
 async function createVideoSegments(images, scripts, durations) {
   const promises = images.map((image, index) => {
+    // const { width, height } = { width: 600, height: 800 };
+    const buffer = fs.readFileSync(image);
+    const { width, height } = sizeOf(buffer);
     const duration = durations[index];
     const rawText = scripts[index];
-    const text = wrapText(rawText).replace(/:/g, '\\:');
+    const text = wrapText(rawText, width + 460).replace(/:/g, '\\:');
     const output = `clip_${index}.mp4`;
-    const { width, height } = { width: 600, height: 800 };
+
     const sValue = `${width}x${height}`;
     let fps = 120;
     if (isRender) {
