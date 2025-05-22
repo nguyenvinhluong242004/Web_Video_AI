@@ -7,6 +7,7 @@ import MainSpeed from "./(pages)/text-to-speed-v1/contentMain";
 import MainSpeedV2 from "./(pages)/text-to-speed-v2/contentMain";
 import { mergeAudios } from "./utils/mergeAudio";
 import MainVideo from "./(pages)/handle-video/main";
+import axios from "axios";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("script");
@@ -326,6 +327,19 @@ export default function Home() {
     }
   }, [imagesVer1]);
 
+
+  const awakeServer = async () => {
+    try {
+      await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/ping`);
+      console.log("Đánh thức server!");
+    } catch (error) {
+      console.error("Lỗi khi gọi API:", error); // mobile vẫn bug
+    }
+  };
+
+  useEffect(() => {
+    awakeServer();
+  });
 
   return (
     <div className="min-h-screen font-sans overflow-hidden">
