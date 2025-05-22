@@ -32,7 +32,7 @@ export default function Home() {
   const [mergedAudioUrlVer2Music, setMergedAudioUrlVer2Music] = useState<string | null>(null);
   const [restartVer2, setRestartVer2] = useState(false);
   const [speedVersion, setSpeedVersion] = useState<"v1" | "v2">("v2");
-  const [imageVersion, setImageVersion] = useState<"v1" | "v2">("v2");
+  const [imageVersion, setImageVersion] = useState<"v1" | "v2">("v1");
   const [selectedAudioType, setSelectedAudioType] = useState<"original" | "withMusic">("original");
   const [allImages, setAllImages] = useState<string[]>([]);
   const [allImagesVer1, setAllImagesVer1] = useState<string[]>([]);

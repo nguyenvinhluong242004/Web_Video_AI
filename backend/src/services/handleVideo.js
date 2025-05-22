@@ -69,7 +69,7 @@ async function createVideoSegments(images, scripts, durations) {
         // ])
         .outputOptions([
           '-vf',
-          `scale=3200:-1,zoompan=z='min(zoom+0.0002,1.5)':x='floor(iw/2-(iw/zoom/2))':y='floor(ih/2-(ih/zoom/2))':d=${dFrames}:s=${sValue}:fps=${fps},
+          `scale=2400:-1,zoompan=z='min(zoom+0.0002,1.5)':x='floor(iw/2-(iw/zoom/2))':y='floor(ih/2-(ih/zoom/2))':d=${dFrames}:s=${sValue}:fps=${fps},
             drawtext=text='${text}':fontsize=20:fontcolor=white:x=(w-text_w)/2:y=${yPosition}:box=1:boxcolor=black@0.5:boxborderw=10:line_spacing=10,
             noise=alls=10:allf=t+u`,
           `-t ${duration}`,
