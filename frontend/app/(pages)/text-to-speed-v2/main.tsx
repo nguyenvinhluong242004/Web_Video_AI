@@ -484,7 +484,7 @@ export default function main({ idx, restart, script, scripts, setScripts, url, s
                     </div>
                 </div>
             </div>
-            <div className="mt-3 w-full flex flex-col sm:flex-row md:items-center justify-between h-[50px]">
+            <div className="mt-3 w-full md:w-[500px] flex flex-col sm:flex-row md:items-center justify-between h-[50px]">
                 <div><h1 className="font-bold text-2xl text-gray-800 w-[180px]">🎧 Kết quả:</h1></div>
                 {audioUrl && (
                     <div className="text-center">

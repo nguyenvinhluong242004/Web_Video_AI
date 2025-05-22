@@ -151,7 +151,7 @@ export default function ContentMain({
                         ⬇️ Tải xuống
                     </a>
 
-                    <div className="mt-0 flex flex-col items-center gap-2 text-black">
+                    <div className="mt-0 w-full md:w-[500px] flex flex-col items-center gap-2 text-black">
                         <label className="text-xl font-medium">🎵 Thêm nhạc nền:</label>
                         <input className="cursor-pointer" type="file" accept="audio/*" onChange={(e) => setBackgroundMusicFile(e.target.files?.[0] || null)} />
                         <button
