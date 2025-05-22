@@ -153,7 +153,7 @@ export default function ContentMain({
 
                     <div className="mt-0 w-full md:w-[500px] flex flex-col items-center gap-2 text-black">
                         <label className="text-xl font-medium">🎵 Thêm nhạc nền:</label>
-                        <input className="cursor-pointer" type="file" accept="audio/*" onChange={(e) => setBackgroundMusicFile(e.target.files?.[0] || null)} />
+                        <input className="w-[300px] cursor-pointer" type="file" accept="audio/*" onChange={(e) => setBackgroundMusicFile(e.target.files?.[0] || null)} />
                         <button
                             onClick={handleMergeWithMusic}
                             className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded cursor-pointer"
