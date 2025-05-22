@@ -339,8 +339,18 @@ export default function Main({
                                 <source src={outputVideo} type="video/mp4" />
                                 Trình duyệt của bạn không hỗ trợ video.
                             </video>
+                            <div className="justify-center flex">
+                                <a
+                                    href={outputVideo}
+                                    download="output_video.mp4"
+                                    className="mt-2 bg-blue-600 hover:bg-blue-700 text-white py-1 px-1 rounded"
+                                >
+                                    ⬇️ Tải xuống
+                                </a>
+                            </div>
                         </div>
                     )}
+
                 </div>
             </div>
         </div>
